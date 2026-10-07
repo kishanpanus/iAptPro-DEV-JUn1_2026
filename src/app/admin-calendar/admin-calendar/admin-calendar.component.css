@@ -1,0 +1,104 @@
+.calendar-container {
+    border: 1px solid #ccc;
+    padding: 16px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    margin-top: 20px;
+  }
+  
+  .calendar-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 16px;
+    align-items: center;
+  }
+  
+  .calendar-form input,
+  .calendar-form select {
+    padding: 6px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  .calendar-form button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .calendar-form .cancel-btn {
+    background-color: #ccc;
+    color: black;
+  }
+  
+  .event-list {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .event-list li {
+    margin-bottom: 10px;
+    background: white;
+    padding: 8px 12px;
+    border-left: 5px solid #007bff;
+    border-radius: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  
+  .event-tag {
+    margin-left: 8px;
+    padding: 2px 6px;
+    font-size: 12px;
+    border-radius: 4px;
+    text-transform: capitalize;
+  }
+  
+  .event-tag.clubhouse {
+    background-color: #ffdb99;
+    color: #663c00;
+  }
+  
+  .event-tag.event {
+    background-color: #cce5ff;
+    color: #004085;
+  }
+  
+  .event-status {
+    margin-left: 6px;
+    font-size: 12px;
+    font-style: italic;
+    color: #666;
+  }
+  
+  .admin-actions button {
+    background: none;
+    border: none;
+    font-size: 16px;
+    margin-left: 6px;
+    cursor: pointer;
+  }
+  
+  .admin-actions .edit-btn {
+    color: #007bff;
+  }
+  
+  .admin-actions .delete-btn {
+    color: red;
+  }
+  
+  .admin-actions button:hover {
+    transform: scale(1.1);
+  }
+  .text-muted {
+    color: #888;
+    font-style: italic;
+    margin-top: 10px;
+  }
+  

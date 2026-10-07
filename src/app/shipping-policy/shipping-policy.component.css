@@ -1,0 +1,20 @@
+.policy-container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    font-family: "Segoe UI", sans-serif;
+  }
+  .policy-container h1 {
+    color: #0047ab;
+    margin-bottom: 20px;
+  }
+  .policy-container h3 {
+    margin-top: 20px;
+    color: #333;
+  }
+  .policy-container p {
+    line-height: 1.6;
+  }
+  

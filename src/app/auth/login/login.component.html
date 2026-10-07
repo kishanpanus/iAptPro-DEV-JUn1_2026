@@ -1,0 +1,119 @@
+<div class="logo-top-left">
+  <a routerLink="/" (click)="reloadPage($event)">
+    <img src="assets/apt3mnewlogo.png" class="logo" alt="Apt3M Logo" />
+  </a>
+</div>
+
+<div class="login-container fancy-bg">
+  <div class="login-card modern-card">
+    <h2 class="login-title gradient-text">
+      <i class="fas fa-building"></i> Resident Login Portal
+    </h2>
+
+    <div class="form-group phone-group">
+      <label for="phoneNumber">📱 Phone Number</label>
+      <div class="phone-input-wrapper">
+        <span class="country-code">+91</span>
+        <input
+          id="phoneNumber"
+          [(ngModel)]="phoneNumber"
+          (ngModelChange)="onPhoneInputChange()"
+          placeholder="Enter mobile number"
+          type="tel"
+          maxlength="10"
+        />
+      </div>
+    </div>
+    <div id="recaptcha-container"></div>
+
+    <div class="login-tabs soft-tabs" *ngIf="isPhoneValid && !phoneNumberNotFound">
+      <!-- <button 
+        [class.active]="selectedMethod === 'face'" 
+        (click)="selectMethod('face')">
+        <i class="fas fa-face-id"></i> Face ID
+      </button> -->
+      <button 
+        [class.active]="selectedMethod === 'pin'" 
+        [class.highlight]="pinSetInFirestore"
+        (click)="selectMethod('pin')">
+        <i class="fas fa-key"></i> PIN
+      </button>
+      <button 
+        [class.active]="selectedMethod === 'otp'" 
+        [class.highlight]="!pinSetInFirestore"
+        (click)="selectMethod('otp')">
+        <i class="fas fa-lock"></i> OTP
+      </button>
+    </div>
+    
+
+    <div class="login-form-area fade-in" *ngIf="selectedMethod">
+      <ng-container *ngIf="selectedMethod === 'face'">
+        <button class="btn faceid-btn glow" (click)="biometricLogin()">Login using Face ID</button>
+      </ng-container>
+
+      <ng-container *ngIf="selectedMethod === 'pin'">
+        <input
+          type="password"
+          maxlength="4"
+          class="pin-input boxed-input"
+          placeholder="Enter 4-digit PIN"
+          [(ngModel)]="enteredPin"
+        />
+        <button class="btn pin-btn" (click)="loginWithPIN()">Login</button>
+        <div class="subtext">
+          <a href="#" (click)="forgotPin(); $event.preventDefault()">Forgot PIN?</a>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="selectedMethod === 'otp'">
+        <button class="btn otp-btn" (click)="sendOTP()" [disabled]="!phoneNumber || phoneNumber.length !== 10 || userNotFound || isAdminApproved === false" >
+          Send OTP
+        </button>
+
+        <div *ngIf="otpSent" class="form-group otp-group">
+          <label for="otp">Enter OTP</label>
+          <input id="otp" [(ngModel)]="otpCode" placeholder="Enter OTP" type="text" />
+          <button class="btn verify" (click)="verifyOTP()">Verify OTP</button>
+        </div>
+      </ng-container>
+    </div>
+
+    <div class="contact-toggle ">
+      <a href="#" (click)="showContactForm = true; $event.preventDefault()">
+        <i class="fas fa-phone-alt"></i> Contact
+      </a>
+    </div>
+
+    <!-- <div class="divider fancy-divider"><span>OR</span></div> -->
+
+    <!-- <div class="enrollment-section">
+      <span class="apt3m-badge">
+        <span class="emoji">👇</span> New to Apt3M?
+      </span>
+      <button class="enroll-button shadowed" (click)="navigateToEnrollment()">
+        Register Your Apartment
+      </button>
+    </div> -->
+  </div>
+</div>
+
+<div class="modal-backdrop" *ngIf="showContactForm" (click)="showContactForm = false"></div>
+<div class="interest-form popup" *ngIf="showContactForm">
+  <div class="modal-content">
+    <h4>Interested in using this app?</h4>
+    <input type="text" placeholder="Your Name" [(ngModel)]="interestName" class="styled-input" />
+    <input type="text" placeholder="Phone Number" [(ngModel)]="interestPhone" class="styled-input" />
+    <textarea placeholder="Your Message / Details" [(ngModel)]="interestMessage" class="styled-textarea"></textarea>
+    <button (click)="submitInterest()" class="styled-button">Submit</button>
+    <p *ngIf="interestSubmitted" class="success-msg">Thank you! We’ll reach out soon.</p>
+  </div>
+</div>
+
+<div class="modal-backdrop" *ngIf="userNotFound">
+  <div class="modal-box">
+    <h2>📱 Phone Number Not Found</h2>
+    <p>Your phone number was not found. Please contact your property management.</p>
+    <button class="modal-btn" (click)="closeModal()">Okay</button>
+  </div>
+</div>

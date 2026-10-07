@@ -1,0 +1,50 @@
+.features-container {
+    padding: 3rem 1rem;
+    background: #f9f9ff;
+    text-align: center;
+  }
+  
+  .features-title {
+    font-size: 2.5rem;
+    color: #003cff;
+    margin-bottom: 2rem;
+    font-weight: 700;
+  }
+  
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 2rem;
+    padding: 0 1rem;
+  }
+  
+  .feature-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+    padding: 2rem 1rem;
+    transition: transform 0.2s;
+  }
+  
+  .feature-card:hover {
+    transform: translateY(-5px);
+  }
+  
+  .feature-card i {
+    font-size: 2.5rem;
+    color: #00bf57;
+    margin-bottom: 1rem;
+  }
+  
+  .feature-card h3 {
+    font-size: 1.3rem;
+    margin-bottom: 0.8rem;
+    color: #1e1e1e;
+  }
+  
+  .feature-card p {
+    color: #555;
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+  

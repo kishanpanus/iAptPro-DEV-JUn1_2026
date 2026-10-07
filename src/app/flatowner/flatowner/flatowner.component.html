@@ -1,0 +1,30 @@
+<div class="flatowner-container">
+    <header>
+      <h1>{{ apartmentName }} - Flat Owner Dashboard</h1>
+      <button (click)="logout()">Logout</button>
+    </header>
+  
+    <main class="content">
+      <section class="owner-info">
+        <p><strong>Flat Number:</strong> {{ flatNumber }}</p>
+        <p><strong>Owner Name:</strong> {{ ownerName }}</p>
+      </section>
+  
+      <section>
+        <h4>💸 Last Month Expenses</h4>
+
+        <div *ngFor="let expense of flatOwnerExpenses" class="shadow p-4 rounded bg-white mt-4">
+          <h3 class="font-semibold text-lg">{{ expense.title }} - ₹{{ expense.amount }}</h3>
+          <p>Status: {{ expense.flatOwners[flatOwnerId]?.paid ? '✅ Paid' : '❌ Not Paid' }}</p>
+        </div>
+      </section>
+  
+      <section>
+        <h2>Announcements</h2>
+        <ul>
+          <li *ngFor="let note of announcements">{{ note }}</li>
+        </ul>
+      </section>
+    </main>
+  </div>
+  

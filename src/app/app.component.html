@@ -1,0 +1,115 @@
+<!-- Show header only when not on login or enrollment pages -->
+<!-- Outer container for consistent layout -->
+<div class="top-bar"> 
+  <!-- Logo always visible -->
+  <div class="logo-top-left"  *ngIf="otpVerified && (role === 'superadmin' || admin?.apartmentName)" >
+    <a>
+      <img src="assets/apt3mnewlogo.png" alt="Apt3M Logo" class="logo-image" />
+    </a>
+  </div>
+
+  <!-- Centered Apartment Name - only after login -->
+  <div class="apartment-name" *ngIf="otpVerified && admin?.apartmentName">
+    <span>🏢 {{ admin?.apartmentName }}</span>
+  </div>
+
+  <!-- Avatar and dropdown - only after login -->
+  <div class="top-actions" *ngIf="otpVerified">
+    <div class="user-menu" (click)="toggleMenu($event)">
+      <div class="avatar-wrapper">
+        <div class="user-avatar">{{ getInitials(admin?.name || '') }}</div>
+      </div>
+      <div *ngIf="showMenu" class="dropdown">
+        <button (click)="openProfileModal()">Profile</button>
+        <button (click)="logout()">Logout</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Reusable Modal -->
+<div id="globalModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="globalModalTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content border-0">
+      <div class="modal-header">
+        <h5 id="globalModalTitle" class="modal-title">
+          <span class="modal-icon me-2"></span> Message
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body fs-5 text-dark px-4">Loading...</div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary modal-cancel-btn" style="display:none;">Cancel</button>
+        <button type="button" class="btn btn-primary modal-confirm-btn" style="display:none;">Yes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Profile Modal -->
+<!-- <div class="modal-backdrop" *ngIf="showProfileModal" (click)="closeProfileModal()"></div> -->
+<!-- <div class="modal" *ngIf="showProfileModal" style="display: block !important;">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>👤 Profile Info</h3>
+      <button class="close-btn" (click)="closeProfileModal()">×</button>
+    </div>
+    <div class="modal-body text-center">
+      <div class="avatar-large">{{ getInitials(admin?.name || '') }}</div>
+      <h3 class="mt-2">{{ admin?.name }}</h3>
+      <p class="text-muted">{{ admin?.phone }}</p>
+      <hr />
+      <p><strong>Apartment:</strong> {{ admin?.apartmentName }}</p>
+      <p><strong>Flat:</strong> {{ admin?.flatNumber }}</p>
+      <p><strong>Role:</strong> <span class="badge role-badge">{{ admin?.role }}</span></p>
+    </div>
+    <div class="modal-actions">
+      <button class="logout-btn" (click)="logout()">🔓 Logout</button>
+    </div>
+  </div>
+</div> -->
+
+<!-- Profile Modal -->
+<!-- Profile Modal using Bootstrap -->
+<!-- Profile Modal using Bootstrap -->
+<div class="modal fade" id="profileModal" #profileModal tabindex="-1" aria-labelledby="profileModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0">
+      <div class="modal-header bg-light">
+        <h5 class="modal-title d-flex align-items-center" id="profileModalLabel">
+          <span class="me-2">👤</span> Profile Info
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body text-center">
+        <div class="avatar-large mx-auto mb-2">{{ getInitials(admin?.name || '') }}</div>
+        <h4 class="mb-1">{{ admin?.name }}</h4>
+        <p class="text-muted">{{ admin?.phone }}</p>
+        <hr />
+        <p><strong>Apartment:</strong> {{ admin?.apartmentName }}</p>
+        <p><strong>Flat:</strong> {{ admin?.flatNumber }}</p>
+        <p><strong>Role:</strong> <span class="badge bg-secondary text-capitalize">{{ admin?.role }}</span></p>
+      </div>
+      <div class="modal-footer justify-content-center">
+        <button class="btn btn-danger" (click)="logout()">🔓 Logout</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+<!-- Section Loader -->
+<ng-container *ngIf="isMobile; else desktopView">
+  <app-mobile-login *ngIf="router.url === '/'"></app-mobile-login>
+</ng-container>
+
+<ng-template #desktopView>
+  <!-- <app-landing *ngIf="router.url === '/'"></app-landing> -->
+</ng-template>
+
+<!-- Always load routed views -->
+<router-outlet></router-outlet>

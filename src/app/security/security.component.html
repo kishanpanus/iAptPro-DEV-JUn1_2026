@@ -1,0 +1,98 @@
+<div class="security-container">
+
+  <!-- 🛂 Section 1: Gate Pass Monitor -->
+  <details class="collapsible-section" open>
+    <summary class="collapsible-header">🛂 Gate Pass Monitor</summary>
+
+    <div class="gate-pass-list" *ngIf="gatePasses.length > 0; else noPasses">
+      <div class="gate-pass-card" *ngFor="let pass of gatePasses">
+        <div class="info">
+          <p><strong>Flat:</strong> {{ pass.flat }}</p>
+          <p><strong>Delivery:</strong> {{ pass.deliveryType }}</p>
+          <p><strong>Expected:</strong> {{ pass.expectedTime | date:'shortTime' }}</p>
+          <p><strong>Status:</strong>
+            <span class="status-label" [ngClass]="pass.status">{{ pass.status }}</span>
+          </p>
+        </div>
+
+        <div class="actions" *ngIf="pass.status === 'pending'">
+          <button (click)="updateStatus(pass, 'approved')">Approve</button>
+          <button (click)="updateStatus(pass, 'delivered')">Mark Delivered</button>
+        </div>
+      </div>
+    </div>
+
+    <ng-template #noPasses>
+      <p>No upcoming deliveries right now.</p>
+    </ng-template>
+  </details>
+
+  <!-- 🎫 Section 2: Visitor QR Scan -->
+  <details class="collapsible-section">
+    <summary class="collapsible-header">🎫 Visitor QR Validation</summary>
+
+    <div class="visitor-scan-section">
+      <button class="btn scan-btn" (click)="startScanner()">📷 Check QR</button>
+
+      <div *ngIf="isScanning" class="scanner-wrapper">
+        <zxing-scanner
+          [device]="selectedDevice"
+          (scanSuccess)="onQRCodeScanned($event)">
+        </zxing-scanner>
+
+        <button class="btn danger" (click)="stopScanner()">❌ Stop</button>
+      </div>
+    </div>
+  </details>
+
+  <!-- 👤 Section 3: Visitor Info Display -->
+  <details class="collapsible-section" *ngIf="visitorInfo">
+    <summary class="collapsible-header">👤 Visitor Details</summary>
+
+    <div class="visitor-info">
+      <p><strong>Name:</strong> {{ visitorInfo.name }}</p>
+      <p><strong>Phone:</strong> {{ visitorInfo.phone }}</p>
+      <p><strong>Purpose:</strong> {{ visitorInfo.purpose }}</p>
+      <p><strong>Expected Time:</strong> {{ visitorInfo.time | date:'short' }}</p>
+      <p><strong>Status:</strong> {{ visitorInfo.used ? '✅ Used' : '🕒 Valid' }}</p>
+    </div>
+  </details>
+
+  <details class="collapsible-section">
+    <summary class="collapsible-header">✍️ Manually Log Visitor</summary>
+    <form (ngSubmit)="logVisitorManually()" #manualLogForm="ngForm" class="form-section">
+      <label>Visitor Name:</label>
+      <input type="text" name="name" [(ngModel)]="manualVisitor.name" required />
+  
+      <label>Phone Number:</label>
+      <input type="tel" name="phone" [(ngModel)]="manualVisitor.phone" required pattern="^[0-9]{10}$" maxlength="10" />
+  
+      <label>Purpose:</label>
+      <input type="text" name="purpose" [(ngModel)]="manualVisitor.purpose" required />
+  
+      <label>Flat Number:</label>
+      <input type="text" name="flat" [(ngModel)]="manualVisitor.flat" required />
+  
+      <button class="btn primary" type="submit" [disabled]="manualLogForm.invalid">📝 Add Log</button>
+    </form>
+  </details>
+  <details class="collapsible-section" *ngIf="visitorLogs.length > 0">
+    <summary class="collapsible-header">📋 Visitor Logs</summary>
+    <button class="btn" (click)="exportLogs('csv')">⬇️ Export CSV</button>
+    <button class="btn" (click)="exportLogs('pdf')">📄 Export PDF</button>
+    
+    <div *ngFor="let log of visitorLogs" class="gate-pass-card">
+      <p><strong>Name:</strong> {{ log.name }}</p>
+      <p><strong>Phone:</strong> {{ log.phone }}</p>
+      <p><strong>Purpose:</strong> {{ log.purpose }}</p>
+      <p><strong>Flat:</strong> {{ log.flat }}</p>
+      <p><strong>Time:</strong> {{ log.time?.toDate() | date:'short' }}</p>
+      <p><strong>Source:</strong> {{ log.source === 'qr' ? '📱 QR' : '✍️ Manual' }}</p>
+      <p><strong>Status:</strong> {{ log.used ? '✅ Used' : '🕒 Valid' }}</p>
+      <hr />
+    </div>
+  </details>
+  
+  
+
+</div>

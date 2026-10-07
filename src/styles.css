@@ -1,0 +1,275 @@
+body {
+    background-color: #f7f7f7; /* Very light off-white to match logo bg */
+    margin: 0;
+    font-family: sans-serif;
+  }
+  
+html, body { height: 100%; overflow-x: hidden; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+/* Global form styles */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 12px;
+}
+
+label {
+  margin-bottom: 4px;
+  font-weight: bold;
+}
+
+input {
+  padding: 10px;
+  font-size: 1rem;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  width: 50%;
+  box-sizing: border-box;
+}
+
+/* Button styling */
+button {
+  /* background-color: #007bff; */
+  color: white;
+  border: none;
+  margin-top: 8px;
+  cursor: pointer;
+ 
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+/* Card/container */
+.card {
+  background-color: white;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+  .form-group {
+    margin-bottom: 16px;
+  }
+
+  input, select, button {
+    font-size: 1rem;
+  }
+}
+#globalModal.modal-success .modal-header {
+  background-color: #d4edda;
+}
+#globalModal.modal-error .modal-header {
+  background-color: #f8d7da;
+}
+#globalModal.modal-warning .modal-header {
+  background-color: #fff3cd;
+}
+
+
+details.card,
+details.card-section,
+details.superadmin-approval-container {
+  border-radius: 12px;
+  margin: 20px 0;
+  background: #ffffff;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: box-shadow 0.3s ease;
+  border: 1px solid #e0e0e0;
+}
+
+/* Summary header styles */
+details > summary {
+  padding: 16px 24px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  background: linear-gradient(to right, #e3f2fd, #f1f8e9);
+  color: #2b2b2b;
+  border-bottom: 1px solid #ddd;
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: background 0.3s ease;
+}
+
+details > summary:hover {
+  background: linear-gradient(to right, #d0e8ff, #e9f5dc);
+}
+
+/* Remove native marker */
+details > summary::-webkit-details-marker {
+  display: none;
+}
+
+/* Animate content expansion */
+details[open] {
+  animation: fadeInDown 0.3s ease;
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Padding for inner content */
+details > *:not(summary) {
+  padding: 20px 24px;
+}
+
+/* model service*/
+
+/* Modal base icon styling */
+.modal-icon {
+  font-size: 24px;
+  margin-right: 10px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* Modal Type Colors */
+.modal-success .modal-header {
+  background-color: #d4edda;
+  color: #155724;
+}
+.modal-error .modal-header {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+.modal-warning .modal-header {
+  background-color: #fff3cd;
+  color: #856404;
+}
+.modal-info .modal-header {
+  background-color: #cce5ff;
+  color: #004085;
+}
+.modal-confirm .modal-header {
+  background-color: #e2e3e5;
+  color: #383d41;
+}
+
+/* Optional: Matching icon colors */
+.modal-success .modal-icon { color: #28a745; }
+.modal-error .modal-icon { color: #dc3545; }
+.modal-warning .modal-icon { color: #ffc107; }
+.modal-info .modal-icon { color: #17a2b8; }
+.modal-confirm .modal-icon { color: #6c757d; }
+.page-section {
+  padding: 2rem 1rem;
+  max-width: 800px;
+  margin: auto;
+}
+
+.page-section h2 {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+  color: var(--brand-blue);
+}
+
+.feature-list, .contact-info {
+  list-style: none;
+  padding-left: 0;
+}
+
+.feature-list li, .contact-info li {
+  margin-bottom: 0.8rem;
+  font-size: 1.1rem;
+}
+
+.feature-list li i, .contact-info li i {
+  color: var(--brand-green);
+  margin-right: 10px;
+}
+
+.pricing-plans {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+}
+
+.plan-card {
+  background: #f7f7f7;
+  padding: 1.5rem;
+  border-radius: 10px;
+  width: 260px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  text-align: center;
+}
+
+.plan-card.highlight {
+  border: 2px solid var(--brand-green);
+}
+
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.contact-form input, .contact-form textarea {
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+
+.contact-form button {
+  background-color: var(--brand-green);
+  color: white;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+/* Responsive Layout */
+@media (max-width: 768px) {
+  .pricing-plans {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+.modal-backdrop.show {
+  opacity: 0.5;
+  z-index: 1040;
+  background-color: rgba(0, 0, 0, 0.5); /* proper dimming */
+}
+.modal.show {
+  z-index: 1050;
+}
+.modal {
+  background-color: transparent !important; /* avoid white background */
+}
+
+.modal-content {
+  background-color: white; /* only content box should be white */
+  border-radius: 10px;
+}
+.policy-page {
+  max-width: 800px;
+  margin: auto;
+  padding: 2rem;
+  font-family: 'Segoe UI', sans-serif;
+}
+.policy-page h1 {
+  color: #0047ab;
+  margin-bottom: 1rem;
+}
+.policy-page ul li {
+  margin: 0.5rem 0;
+}

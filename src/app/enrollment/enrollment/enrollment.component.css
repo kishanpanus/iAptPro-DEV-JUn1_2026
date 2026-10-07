@@ -1,0 +1,287 @@
+.enrollment-container {
+  max-width: 800px;
+  margin: auto;
+  padding: 20px;
+}
+
+.enrollment-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  padding: 25px;
+  position: relative;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.modal-actions {
+  text-align: right;
+  margin-bottom: 1rem;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-section h4 {
+  margin-top: 20px;
+  font-weight: 600;
+  color: #333;
+}
+
+.pricing-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin: 1rem 0;
+}
+
+.pricing-card {
+  flex: 1 1 45%;
+  border: 2px solid #ddd;
+  border-radius: 10px;
+  padding: 15px;
+  position: relative;
+  transition: border-color 0.3s ease;
+}
+
+.pricing-card.selected {
+  border-color: #0047ab;
+  background: #f5f9ff;
+}
+
+.pricing-card input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+}
+
+.pricing-card label {
+  display: block;
+  cursor: pointer;
+}
+
+.pricing-card h3 {
+  margin-top: 0;
+  color: #0047ab;
+}
+
+.pricing-card h2 {
+  margin: 10px 0;
+  font-size: 1.3rem;
+}
+
+.pricing-card ul {
+  padding-left: 1rem;
+  list-style-type: none;
+}
+
+.pricing-card ul li::before {
+  content: '✔ ';
+  color: green;
+  margin-right: 5px;
+}
+
+.form-check {
+  display: flex;
+  align-items: center;
+  font-size: 0.95rem;
+}
+
+.form-check-label a {
+  color: #0047ab;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.button-group {
+  margin-top: 1.2rem;
+}
+
+.btn {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.btn-primary {
+  background: #0047ab;
+  color: #fff;
+}
+
+.btn-secondary {
+  background: #e0e0e0;
+  color: #333;
+}
+
+.payment-fade {
+  margin-top: 1.5rem;
+}
+
+.terms-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.4);
+  z-index: 99;
+}
+
+.terms-modal {
+  position: fixed;
+  top: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 500px;
+  background: #fff;
+  z-index: 100;
+  border-radius: 10px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+}
+
+.terms-modal-content {
+  padding: 20px;
+}
+
+.terms-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.terms-modal-header h5 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.terms-close-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.3rem;
+  cursor: pointer;
+}
+
+.terms-modal-body p {
+  font-size: 0.95rem;
+  margin: 8px 0;
+}
+
+.terms-modal-footer {
+  text-align: right;
+  margin-top: 15px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .pricing-cards {
+    flex-direction: column;
+  }
+
+  .pricing-card {
+    flex: 1 1 100%;
+  }
+
+  .btn {
+    width: 100%;
+  }
+}
+.plan-options {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  align-items: stretch;
+  flex-wrap: wrap;
+}
+
+.plan-card {
+  width: 300px;
+  min-height: 360px;
+  padding: 28px 24px;
+  border-radius: 16px;
+  background: #fff;
+  border: 2px solid #e5e7eb;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.plan-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+}
+
+.plan-card.selected {
+  border-color: #0d6efd;
+  background: #f0f7ff;
+}
+
+.plan-card input[type="radio"] {
+  margin-bottom: 14px;
+}
+
+.plan-card h5 {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 14px;
+}
+
+.plan-card p {
+  font-size: 15px;
+  line-height: 1.5;
+  margin-bottom: 18px;
+}
+
+.price {
+  display: block;
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 18px;
+}
+
+.features {
+  list-style-position: inside;
+  padding-left: 0;
+  margin: 0;
+  text-align: left;
+}
+
+.features li {
+  font-size: 15px;
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+
+@media (max-width: 768px) {
+  .plan-options {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .plan-card {
+    width: 100%;
+    max-width: 340px;
+  }
+}
+
+.action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 30px;
+}
+
+.action-buttons .btn {
+  width: 100%;
+  height: 50px;
+  font-size: 16px;
+  font-weight: 600;
+}

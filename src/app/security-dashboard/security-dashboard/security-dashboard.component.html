@@ -1,0 +1,19 @@
+<h2>🚪 Today's Deliveries</h2>
+
+<div *ngIf="gatePasses.length === 0">
+  <p>No gate passes found for today.</p>
+</div>
+
+<div *ngFor="let pass of gatePasses" class="gate-pass-card">
+  <p><strong>Flat:</strong> {{ pass.flatNo || 'N/A' }}</p>
+  <p><strong>Delivery Type:</strong> {{ pass.deliveryType }}</p>
+  <p><strong>Expected Time:</strong> {{ pass.expectedTime.toDate() | date: 'shortTime' }}</p>
+  <p><strong>Status:</strong>
+    <span *ngIf="pass.status === 'pending'">🕒 Pending</span>
+    <span *ngIf="pass.status === 'delivered'">✅ Delivered</span>
+  </p>
+
+  <button class="btn confirm" *ngIf="pass.status === 'pending'" (click)="markAsDelivered(pass.id)">
+    ✅ Mark as Delivered
+  </button>
+</div>

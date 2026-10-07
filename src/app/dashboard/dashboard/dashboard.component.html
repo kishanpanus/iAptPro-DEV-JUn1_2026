@@ -1,0 +1,410 @@
+<div *ngIf="activeAnnouncement" class="announcement-banner">
+  <marquee behavior="scroll" direction="left" scrollamount="6">
+    📢 {{ activeAnnouncement.message }}
+  </marquee>
+</div>
+<div class="welcome-box" *ngIf="user?.name && user?.role !== 'admin'">
+  <div class="welcome-header">
+    <span class="wave">👋</span>
+    <h2>{{ getGreeting() }}, <span class="name">{{ user.name }}</span>
+      <span class="role-badge">{{ user.role || 'Spouse' }}</span>
+      <!-- <p class="today-date">📅 {{ today | date: 'fullDate' }}</p> -->
+
+    </h2>
+  </div>
+
+  <!-- Dynamic role message -->
+  <!-- <p class="subtext" *ngIf="user?.role === 'resident'">
+    You're logged in as a <strong>resident</strong>. You can view announcements and participate in polls.
+  </p>
+  <p class="subtext" *ngIf="user?.role === 'tenant'">
+    You're logged in as a <strong>tenant</strong>. You can view your expenses and access limited features.
+  </p>
+  <p class="subtext" *ngIf="!user?.role">
+    You're logged in as a <strong>spouse</strong>. You have limited access to announcements and polls.
+  </p> -->
+</div>
+
+
+
+<!--Expenses-->
+<details class="collapsible-section" (toggle)="onExpensesToggle($event)">
+  <summary class="collapsible-title">🧾 Expenses
+    <span *ngIf="hasUnseenExpenses" class="dot ms-2"></span>
+  </summary>
+  <div *ngFor="let year of objectKeys(groupedExpenses)">
+    <div (click)="toggleYear(year)" class="year-header">
+      <i class="bi bi-calendar"></i> {{ year }} - ₹{{ getYearlyTotal(year) | number:'1.2-2' }}
+    </div>
+  
+    <div *ngIf="isYearOpen(year)">
+      <div *ngFor="let month of objectKeys(groupedExpenses[year])">
+        <div class="month-header d-flex justify-content-between align-items-center">
+          <div (click)="toggleMonth(year, month)">
+            📅 {{ month }} - ₹{{ getMonthlyTotal(year, month) | number:'1.2-2' }}
+          </div>
+          <button class="btn btn-success btn-sm" (click)="onPayNowClick(year, month)">Pay Now</button>
+        </div>
+  
+        <div *ngIf="isMonthOpen(year, month)">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Amount</th>
+                <th>Split</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let exp of groupedExpenses[year][month]">
+                <td>{{ exp.title }}</td>
+                <td>₹{{ exp.amount | number:'1.2-2' }}</td>
+                <td>
+                  <span *ngIf="exp.isSplit" class="badge bg-warning text-dark">Split</span>
+                  <span *ngIf="!exp.isSplit && !exp.isWater">Personal</span>
+                  <span *ngIf="exp.isWater" class="badge bg-info text-white">Water</span>
+                </td>
+              </tr>
+              <tr *ngIf="groupedExpenses[year][month].length === 0">
+                <td colspan="3" class="text-center">No expenses recorded</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+</details>
+
+<!-- Spouse Add Form (shows only when not saved) -->
+<details class="collapsible-section spouse-access-card"
+         *ngIf="!isSpouseUser && !spouse.phoneNumber">
+  <summary class="collapsible-title">👩‍❤️‍👨 Spouse Access</summary>
+
+  <div class="form-group">
+    <label for="spouseName">Name</label>
+    <input type="text" id="spouseName" [(ngModel)]="spouseFormModel.name" placeholder="Spouse Name" class="form-control" />
+  </div>
+
+  <div class="form-group">
+    <label for="spousePhone">Phone Number</label>
+    <input type="tel" id="spousePhone" [(ngModel)]="spouseFormModel.phoneNumber" maxlength="10" placeholder="Spouse Phone" class="form-control" />
+  </div>
+
+  <div class="form-check mb-3">
+    <label>
+      <input type="checkbox" [(ngModel)]="spouseFormModel.accessEnabled" class="form-check-input" />
+      Allow App Access
+    </label>
+  </div>
+
+  <button (click)="saveSpouseDetails()" class="btn btn-success">Save</button>
+</details>
+
+<!-- Spouse Details (shows only after saving) -->
+<details class="collapsible-section"
+         *ngIf="!isSpouseUser && spouse.phoneNumber">
+  <summary class="collapsible-title">👩‍❤️‍👨 Spouse Access (Granted)</summary>
+  <p><strong>Name:</strong> {{ spouse.name }}</p>
+  <p><strong>Phone:</strong> {{ spouse.phoneNumber.slice(0,3) }}-{{ spouse.phoneNumber.slice(3,6) }}-{{ spouse.phoneNumber.slice(6) }}</p>
+  <p>Status: ✅ Access Enabled</p>
+
+  <button class="btn danger" (click)="removeSpouseAccess()">❌ Remove Spouse Access</button>
+</details>
+
+
+<hr class="section-divider" />
+
+<!--Announcements-->
+<details class="collapsible-section" >
+  <summary class="collapsible-title">📢 Announcements
+    <span *ngIf="hasUnreadAnnouncements" class="dot"></span>
+  </summary>
+  <!-- Show message if empty -->
+  <div *ngIf="!announcements?.length" class="no-data-message">
+    No announcements at the moment.
+  </div>
+  <ul>
+    <li *ngFor="let msg of announcements" [ngClass]="{ 'highlight': !msg.rsvpSubmitted || msg.isUnread }">
+      <div>
+        <strong *ngIf="msg.postedAt">Posted on: {{ msg.postedAt?.toDate() | date: 'shortDate' }}</strong>
+      </div>
+
+      <div>
+        <p>{{ msg.message }}</p>
+        <small>— {{ msg.createdBy }} - Admin, {{ msg.createdAt?.toDate() | date:'short' }}</small>
+      </div>
+
+      <div *ngIf="!msg.rsvpSubmitted" [class.read-only]="isSpouseUser">
+        <label>RSVP:</label>
+        <select [(ngModel)]="msg.rsvpStatus" [disabled]="isSpouseUser">
+          <option value="Yes">Yes</option>
+          <option value="No">No</option>
+          <option value="Maybe">Maybe</option>
+        </select>
+        <input [(ngModel)]="msg.rsvpMessage" placeholder="Optional message">
+        <button (click)="submitRSVP(msg)">Submit RSVP</button>
+      </div>
+    </li>
+  </ul>
+</details>
+
+<!--Polls/Voting-->
+<details class="collapsible-section" (toggle)="onPollsToggle($event)">
+  <summary class="collapsible-title">🗳️ Polls/Voting
+    <span *ngIf="hasNewPolls" class="dot ms-2"></span>
+  </summary>
+
+  <div *ngIf="!polls?.length">No active polls right now.</div>
+
+  <div *ngFor="let poll of polls" class="poll-box shadow">
+    <div class="poll-header">
+      <h4>{{ poll.title }}</h4>
+      <span class="status-badge" [class.closed]="!poll.isActive">
+        {{ poll.isActive ? 'Active' : 'Closed' }}
+      </span>
+    </div>
+  
+    <p class="poll-description">{{ poll.description }}</p>
+  
+    <!-- Voting Options -->
+    <div *ngIf="!hasVoted(poll) && poll.isActive" class="poll-options">
+      <label *ngFor="let option of poll.options" class="option-label">
+        <input type="radio" [value]="option" name="vote-{{poll.id}}" (change)="vote(poll, option)" />
+        <span>{{ option }}</span>
+      </label>
+    </div>
+  
+    <!-- After Vote Summary -->
+    <div *ngIf="hasVoted(poll)" class="vote-summary">
+      <p class="voted-label">✅ You voted: <strong>{{ poll.votes[flatOwnerId] }}</strong></p>
+      <ul class="vote-result-list">
+        <li *ngFor="let option of poll.options">
+          <span class="option-name">{{ option }}</span>
+          <span class="vote-count">{{ getVotesCount(poll, option) }} votes</span>
+        </li>
+      </ul>
+    </div>
+  
+    <!-- Closed Poll Notice -->
+    <div *ngIf="!poll.isActive && !hasVoted(poll)" class="poll-closed">
+      <em>This poll is now closed.</em>
+    </div>
+  </div>
+  
+</details>
+
+<hr class="section-divider" />
+
+<!-- FlatOwner Component HTML -->
+<details class="collapsible-section">
+  <summary class="collapsible-title">🛠️ Raise Maintenance Request</summary>
+
+  <textarea [(ngModel)]="maintenanceText" rows="3" placeholder="Describe your issue..." class="input full-width"></textarea>
+  <button (click)="submitMaintenanceRequest()">Submit Request</button>
+
+  <div *ngIf="submittedMaintenance.length">
+    <h4>Your Maintenance Requests</h4>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Issue</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let req of submittedMaintenance">
+          <td>{{ req.timestamp.toDate() | date: 'shortDate' }}</td>
+          <td>{{ req.message }}</td>
+          <td>
+            <span [ngClass]="{
+              'badge bg-secondary': req.status === 'pending',
+              'badge bg-warning': req.status === 'in_progress',
+              'badge bg-success': req.status === 'resolved'
+            }">
+              {{ req.status }}
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</details>
+
+<!-- Send Feedback-->
+<details class="collapsible-section">
+  <summary class="collapsible-title">💬 Send Feedback</summary>
+  <textarea [(ngModel)]="feedbackText" rows="3" placeholder="Share your feedback..."></textarea>
+  <button (click)="submitFeedback()">Submit Feedback</button>
+  <ul *ngIf="submittedFeedback.length">
+    <li *ngFor="let fb of submittedFeedback">📣 {{ fb }}</li>
+  </ul>
+</details>
+
+<hr class="section-divider" />
+<!--Marketplace-->
+<details class="collapsible-section" >
+  <summary class="collapsible-title">🛍️ Marketplace
+    <span *ngIf="hasNewMarketplaceItems" class="dot ms-2"></span>
+  </summary>
+  <app-marketplace
+  *ngIf="flatOwnerDetails?.apartmentId"
+  [apartmentId]="flatOwnerDetails?.apartmentId || ''"
+  [postedBy]="flatOwnerDetails?.phoneNumber || ''"
+  [name]="flatOwnerDetails?.name || ''"
+  (itemsLoaded)="marketplaceItems = $event">
+</app-marketplace>
+
+</details>
+
+<!-- Local Service Providers-->
+<details class="collapsible-section" (toggle)="onProvidersToggle($event)">
+  <summary class="collapsible-title">
+    🏠 Local Service Providers
+    <span *ngIf="hasNewServiceProviders" class="dot ms-2"></span>
+  </summary>
+
+  <div class="provider-list">
+    <!-- ✅ Show when list is NOT empty -->
+    <div *ngFor="let sp of serviceProviders" class="provider-card">
+      <h4>{{ sp.name }} <span class="category">({{ sp.category }})</span></h4>
+      <p *ngIf="sp.description">{{ sp.description }}</p>
+      <p>📞 <a [href]="'tel:' + sp.phone">{{ sp.phone }}</a></p>
+    </div>
+
+    <!-- ❗ Show when list is EMPTY -->
+    <p *ngIf="serviceProviders.length === 0" class="text-muted mt-2">
+      No local service providers added yet.
+    </p>
+  </div>
+</details>
+
+
+<hr class="section-divider" />
+<!--Visitor Management-->
+<details class="collapsible-section">
+  <summary class="collapsible-title">🛡️ Visitor Management</summary>
+
+  <!-- Gate Pass Entries (Deliveries) -->
+  <details class="collapsible-subsection" *ngIf="gatePasses.length > 0">
+    <summary class="collapsible-subtitle">🚪 Gate Pass Entries (Deliveries)</summary>
+
+    <div *ngFor="let pass of gatePasses" class="gate-pass-card">
+      <p><strong>Delivery Type:</strong> {{ pass.deliveryType }}</p>
+      <p><strong>Expected Time:</strong> {{ pass.expectedTime.toDate() | date:'shortTime' }}</p>
+      <p><strong>Status:</strong>
+        <span *ngIf="pass.status === 'pending'">🕒 Pending</span>
+        <span *ngIf="pass.status === 'delivered'">✅ Delivered</span>
+      </p>
+
+      <button
+        class="btn confirm"
+        *ngIf="pass.status === 'pending'"
+        (click)="markAsDelivered(pass.id)">
+        ✅ Mark as Delivered
+      </button>
+      <button class="btn danger" (click)="deleteGatePass(pass.id)">🗑️ Delete</button>
+
+      <hr />
+    </div>
+  </details>
+
+  <!-- Add Delivery -->
+  <details class="collapsible-subsection">
+    <summary class="collapsible-subtitle">➕ Add Delivery</summary>
+    <form (ngSubmit)="addGatePass()" #form="ngForm" class="gate-pass-form">
+      <label>Delivery Type:</label>
+      <input type="text" name="type" [(ngModel)]="newPass.deliveryType" required />
+
+      <label>Expected Time:</label>
+      <input type="datetime-local" name="time" [(ngModel)]="newPass.expectedTime" required />
+
+      <button type="submit" class="btn primary" [disabled]="form.invalid">Add Delivery</button>
+    </form>
+  </details>
+  <!-- 🧾 Add Visitor QR Code Section -->
+<details class="collapsible-subsection">
+  <summary class="collapsible-subtitle">🧾 Add Visitor QR Code</summary>
+
+  <form (ngSubmit)="generateVisitorQR(visitorForm.value)" #visitorForm="ngForm" class="visitor-form">
+    <div class="form-row">
+      <label>Name:</label>
+      <input name="name" [(ngModel)]="visitor.name" required />
+    </div>
+
+    <div class="form-row">
+      <label>Phone:</label>
+      <input 
+          name="phone" 
+          [(ngModel)]="visitor.phone" 
+          required 
+          pattern="^[6-9][0-9]{9}$" 
+          title="Enter a valid 10-digit Indian phone number"
+          maxlength="10"
+          class="input"
+        />
+    </div>
+
+    <div class="form-row">
+      <label>Purpose:</label>
+      <input name="purpose" [(ngModel)]="visitor.purpose" required />
+    </div>
+
+    <div class="form-row">
+      <label>Expected Time:</label>
+      <input type="datetime-local" name="time" [(ngModel)]="visitor.time" required />
+    </div>
+
+    <div class="form-row">
+      <button type="submit" class="btn primary">Generate QR</button>
+    </div>
+  </form>
+
+  
+  <div *ngIf="visitorQR" class="qr-wrapper">
+    <img [src]="visitorQR" alt="QR Code" class="qr-image" #qrImg />
+  
+    <!-- Copy icon -->
+    <i class="fas fa-copy copy-icon" title="Copy QR" (click)="copyQrImage(qrImg)"></i>
+    <button class="btn clear" (click)="resetVisitorQR()" *ngIf="visitorQR">Clear</button>
+
+  </div>
+  
+  
+    
+</details>
+</details>
+
+
+
+<hr class="section-divider" />
+
+<!--Events & Bookings-->
+<details class="collapsible-section">
+  <summary class="collapsible-title">📅 Calendar - Events & Bookings</summary>
+
+  <app-admin-calendar  *ngIf="flatOwnerDetails?.apartmentId"
+  [apartmentId]="flatOwnerDetails?.apartmentId || ''"
+  [role]="flatOwnerDetails?.role === 'owner_admin' ? 'admin' : 'owner'"
+  [flatOwnerFlat]="flatOwnerDetails?.flat || ''"
+  [flatOwnerBlock]="flatOwnerDetails?.block || ''"
+  [flatOwnerPhone]="flatOwnerDetails?.phoneNumber || ''"
+  [blockModeEnabled]="blockModeEnabled">
+</app-admin-calendar>
+
+
+</details>
+
+
+
+
+
+
+
+
+
+
+
+

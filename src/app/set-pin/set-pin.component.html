@@ -1,0 +1,13 @@
+<div class="set-pin-container">
+    <h3>🔐 Set a 4-digit PIN</h3>
+    <input type="password" [(ngModel)]="pin" maxlength="4" class="form-control" placeholder="Enter PIN" />
+    <input type="password" [(ngModel)]="confirmPin" maxlength="4" class="form-control mt-2" placeholder="Confirm PIN" />
+  
+    <button class="btn btn-success mt-3" (click)="savePin()">Save & Continue</button>
+  </div>
+
+  <!-- <div class="mt-3 text-center">
+    <button class="btn btn-outline-primary" (click)="enableFaceID()">🔐 Use Face ID / Fingerprint Instead</button>
+  </div> -->
+  
+  

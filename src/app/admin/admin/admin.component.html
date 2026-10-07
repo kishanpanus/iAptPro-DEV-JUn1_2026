@@ -1,0 +1,1015 @@
+<div class="dashboard-container">
+  <div *ngIf="trialDaysLeft !== null && !trialExpired" class="trial-banner">
+    🎉 Trial Active: {{ trialDaysLeft }} day(s) left
+    <button class="upgrade-btn" (click)="goToUpgrade()">Upgrade</button>
+  </div>
+  
+  <div *ngIf="trialExpired" class="trial-banner expired">
+    ❌ Trial expired — please upgrade to access all features.
+    <button class="upgrade-btn" (click)="goToUpgrade()">Upgrade</button>
+  </div>
+  
+  <div class="welcome-box" *ngIf="user?.name">
+    <div class="welcome-header">
+      <span class="wave">👋</span>
+      <h2>{{ getGreeting() }}, <span class="name">{{ user.name }}</span>
+        <span class="role-badge">{{ user.role || 'Spouse' }}</span>
+        <!-- <p class="today-date">📅 {{ today | date: 'fullDate' }}</p> -->
+  
+      </h2>
+    </div>
+  
+    <!-- Dynamic role message -->
+    <!-- <p class="subtext" *ngIf="user?.role === 'resident'">
+      You're logged in as a <strong>resident</strong>. You can view announcements and participate in polls.
+    </p>
+    <p class="subtext" *ngIf="user?.role === 'tenant'">
+      You're logged in as a <strong>tenant</strong>. You can view your expenses and access limited features.
+    </p>
+    <p class="subtext" *ngIf="!user?.role">
+      You're logged in as a <strong>spouse</strong>. You have limited access to announcements and polls.
+    </p> -->
+  </div>
+
+ 
+  <div *ngIf="isSuperAdminViewing" class="superadmin-banner">
+    🔍 You are viewing this Admin panel as SuperAdmin
+  </div>
+
+
+  <div class="tab-buttons">
+    <button (click)="activeTab = 'admin'" [class.active]="activeTab === 'admin'" class="tab-button">
+      Admin View
+    </button>
+    <button (click)="activeTab = 'flatowner'" [class.active]="activeTab === 'flatowner'" class="tab-button">
+      Flat Owner View
+    </button>
+  </div>
+
+  <!-- Admin Tab -->
+  <div *ngIf="activeTab === 'admin'">
+
+    <!-- 🔹 Finance Management -->
+    <!--Add monthly expenses-->
+      <details class="expense-section">
+      <summary class="collapsible-header">💰 Add Monthly Expense</summary>
+
+      <div class="input-group">
+      <input [(ngModel)]="newExpenseName" placeholder="Expense Name" class="input-field" />
+      <input [(ngModel)]="expenseAmount" type="number" placeholder="Amount" class="input-field" />
+
+      <select [(ngModel)]="selectedFlatId" class="input-field" [disabled]="splitEqually">
+        <option [ngValue]="null">All Flats</option>
+        <option *ngFor="let owner of flatOwners" [ngValue]="owner.id">{{ owner.flat }}</option>
+      </select>
+
+      <div class="form-check d-flex align-items-center gap-2 mt-3">
+        <input class="form-check-input" type="checkbox" [(ngModel)]="splitEqually" id="splitCheck" />
+        <label class="form-check-label fw-semibold" for="splitCheck">
+          Split Among All Flats
+        </label>
+      </div>
+
+
+      <button (click)="addExpense()" class="btn btn-success">➕ Add</button>
+      </div>
+
+      <!-- Show pending expenses before save -->
+      <div class="pending-expense-list" *ngIf="pendingExpenses.length > 0">
+      <div class="table-responsive">
+        <table class="table table-hover table-striped">
+          <thead class="table-light">
+            <tr>
+              <th>Expense Name</th>
+              <th>Amount</th>
+              <th>Flat</th>
+              <th style="min-width: 120px;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let exp of pendingExpenses; let i = index">
+              <td>
+                {{ exp.title }}
+                <span *ngIf="exp.isSplit" class="badge bg-warning text-dark ms-2">Split</span>
+              </td>
+              <td>₹{{ exp.amount }}</td>
+              <td>{{ getFlatNameById(exp.flatId) }}</td>
+              <td>
+                <button class="btn btn-sm btn-outline-primary me-1" (click)="editPendingExpense(i)">✏️ Edit</button>
+                <button class="btn btn-sm btn-outline-danger" (click)="removePendingExpense(i)">🗑️ Delete</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <button class="save-all-btn" (click)="savePendingExpenses()">💾 Save All Bills</button>
+      </div>
+      </div>
+
+      </details>
+     
+
+      <!--water bill management-->
+      <details class="collapsible-bill-section">
+      <summary class="collapsible-header">
+      💧 Water Bill Management
+      </summary>
+
+
+
+      <div class="water-bill-management">
+
+      <!-- Billing Period Setup -->
+      <div class="billing-cycle-box">
+      <label for="billingMonth"><strong>Select Billing Month:</strong></label>
+      <input type="month" id="billingMonth" [(ngModel)]="selectedMonth" />
+      <button (click)="initializeNewBillingCycle()" class="start-cycle-btn">
+      Start Billing Cycle & Auto-Fill
+      </button>
+      <p class="status-msg" *ngIf="statusMessage">{{ statusMessage }}</p>
+      </div>
+
+
+      <!-- Collapsible Month-wise Tables -->
+      <div *ngFor="let month of monthsInView" class="table-scroll-container">
+      <details [open]="month === selectedMonth">
+      <summary class="year-summary"><strong>{{ month }}</strong></summary>
+      <div *ngIf="isUnsubmittedMonth(month)">
+        ⚠️ You didn't save the billing for {{ month }}.
+        <button (click)="initializeNewBillingCycle()">Re-initialize Billing</button>
+      </div>
+
+
+      <button (click)="deleteBillingCycle(month)" class="delete-month-btn">
+        🗑️ Delete Billing Cycle
+      </button>
+      <table class="water-bill-table">
+        <thead>
+          <tr>
+            <th>Flat</th>
+            <th>Previous</th>
+            <th>Current</th>
+            <th>Usage</th>
+            <th>Excess</th>
+            <th>Price/L</th>
+            <th>Extra</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>Paid?</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let flat of waterBillData[month]">
+            <td>{{ flat.flatNo }}</td>
+            <td>
+              <ng-container *ngIf="flat.isFirstCycle; else readonlyPrevious">
+                <input
+                  type="number"
+                  [(ngModel)]="flat.previousReading"
+                  placeholder="Enter manually"
+                />
+              </ng-container>
+              <ng-template #readonlyPrevious>
+                {{ flat.previousReading }}
+              </ng-template>
+            </td>
+            
+            <td>
+              <input
+                type="number"
+                [(ngModel)]="flat.currentReading"
+                (input)="calculateForFlat(flat, month)" />
+            </td>
+            <td>{{ flat.usage }}</td>
+            <td>{{ flat.exceeded }}</td>
+            <td>{{ flat.pricePerLiter  }}</td>
+            <td>{{ flat.extraWaterCharge }}</td>
+            <td>{{ flat.totalAmount | number: '1.2-2' }}</td>
+            <td>{{ flat.status }}</td>
+            <td>
+              <input type="checkbox" [(ngModel)]="flat.isPaid" />
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <button  class="button primary-button" (click)="saveMonthData(month)" class="save-month-btn">
+        💾 Save {{ month }}
+      </button>
+      </details>
+      <button class="scroll-top-btn" (click)="scrollToTop()" *ngIf="showScrollTop">
+      ⬆️ Top
+      </button>
+
+      </div>
+
+      </div>
+      </details>
+
+      <!--Expenses list-->
+      <details *ngFor="let year of getYears()" [open]="toNumber(year) === currentYear" class="year-details">
+      <summary class="collapsible-header">💰 Expenses list</summary>
+      <summary class="year-summary">{{ year }} - ₹{{ getYearlyTotal(year) }}</summary>
+
+      <div *ngFor="let month of getMonths(year)" class="month-section">
+      <details class="month-details">
+        <summary class="month-summary">{{ month }} - ₹{{ getMonthlyTotal(year, month) }}</summary>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Owner</th>
+              <th>Flat</th>
+              <th class="green">Total (₹)</th>
+              <th class="w-12"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <ng-container *ngFor="let entry of groupedExpenses[year][month]; let i = index">
+              <tr class="entry-row" (click)="toggleExpenseCollapse(+year, month, i)">
+                <td class="owner-name">{{ entry.ownerName }}</td>
+                <td class="flat-label">Flat {{ entry.flat }}</td>
+                <td class="amount">₹{{ entry.totalAmount | currency:'INR':'symbol':'1.2-2' }}</td>
+                <td class="text-center">
+                  <span class="material-icons">
+                    {{ isExpenseExpanded(+year, month, i) ? 'expand_less' : 'expand_more' }}
+                  </span>
+                </td>
+              </tr>
+
+              <tr *ngIf="isExpenseExpanded(+year, month, i)" class="bg-white">
+                <td colspan="4">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Title</th>
+                        <th>Amount (₹)</th>
+                        <th class="text-center">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <ng-container *ngFor="let item of entry.items; let j = index">
+                        <!-- View mode row -->
+                        <tr *ngIf="!(editOwnerId === entry.ownerId && editItemIndex === j)">
+                          <td>{{ item.title }}</td>
+                          <td>₹{{ item.amount }}</td>
+                          <td class="text-center">
+                            <ng-container *ngIf="item.title !== 'Water Bill'">
+                              <button
+                                (click)="editItem(entry.ownerId, j, item)"
+                                class="edit"
+                              >
+                                Edit
+                              </button>
+                              <button
+                                (click)="deleteItem(entry.ownerId, j, item)"
+                                class="delete"
+                              >
+                                Delete
+                              </button>
+                            </ng-container>
+                            
+                            <ng-template #noActions><!-- no buttons shown --></ng-template>
+                          </td>
+                        </tr>
+                      
+                        <!-- Edit mode row (guarded against Water Bill) -->
+                        <!-- Desktop/tablet edit row -->
+                      <tr *ngIf="editOwnerId === entry.ownerId && editItemIndex === j && item.title !== 'Water Bill'" class="edit-form-desktop">
+                        <td colspan="3">
+                          <div>
+                            <input [(ngModel)]="editItemTitle" placeholder="Title" />
+                            <input [(ngModel)]="editItemAmount" type="number" placeholder="Amount" />
+                            <button (click)="saveItemEdit()" class="save">Save</button>
+                            <button (click)="clearEditState()" class="cancel">Cancel</button>
+                          </div>
+                        </td>
+                      </tr>
+
+                      <!-- Mobile view -->
+                      <tr *ngIf="editOwnerId === entry.ownerId && editItemIndex === j && item.title !== 'Water Bill'" class="mobile-card">
+                        <td colspan="3">
+                          <div>
+                            <label>Title</label>
+                            <input [(ngModel)]="editItemTitle" placeholder="Title" />
+                            <label>Amount</label>
+                            <input [(ngModel)]="editItemAmount" type="number" placeholder="Amount" />
+                            <div class="flex justify-end gap-2">
+                              <button (click)="saveItemEdit()" class="save">Save</button>
+                              <button (click)="clearEditState()" class="cancel">Cancel</button>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+
+                      </ng-container>
+                      
+                      
+
+                      <ng-template #editRow>
+                        <tr class="sm-hidden">
+                          <td colspan="3">
+                            <div class="edit-form-desktop">
+                              <input [(ngModel)]="editItemTitle" placeholder="Title" />
+                              <input [(ngModel)]="editItemAmount" type="number" placeholder="Amount" />
+                              <button (click)="saveItemEdit()" class="save">Save</button>
+                              <button (click)="clearEditState()" class="cancel">Cancel</button>
+                            </div>
+                          </td>
+                        </tr>
+                        <tr class="mobile-card">
+                          <td colspan="3">
+                            <label>Title</label>
+                            <input [(ngModel)]="editItemTitle" placeholder="Title" />
+                            <label>Amount</label>
+                            <input [(ngModel)]="editItemAmount" type="number" placeholder="Amount" />
+                            <div class="mobile-actions">
+                              <button (click)="saveItemEdit()" class="save">Save</button>
+                              <button (click)="clearEditState()" class="cancel">Cancel</button>
+                            </div>
+                          </td>
+                        </tr>
+                      </ng-template>
+
+                      <tr *ngIf="entry.items.length === 0">
+                        <td colspan="4" class="text-center">No individual expenses for this flat owner this month.</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
+            </ng-container>
+          </tbody>
+        </table>
+      </details>
+      </div>
+      </details>
+      <hr class="admin-divider" />
+      <!-- 🔹 Finance Management -->
+      <!--add flat owner-->
+      <details>
+      <summary class="collapsible-header">👥 Add Flat Owner</summary>
+
+      <!-- 🔄 Block Mode Toggle -->
+      <div class="toggle-switch-container">
+      <label class="toggle-label">Block Mode</label>
+      <label class="switch">
+      <input type="checkbox" [(ngModel)]="blockModeEnabled">
+      <span class="slider round"></span>
+      </label>
+      <span class="toggle-description">Enable if your society has multiple blocks/towers</span>
+      </div>
+
+
+      <form #formRef="ngForm" (ngSubmit)="addFlatOwner()" class="add-owner-form">
+      <div class="input-group">
+      <input [(ngModel)]="newOwnerName" name="ownerName" placeholder="Owner Name" required class="input-field" />
+      <input [(ngModel)]="newOwnerPhone" name="ownerPhone" placeholder="Phone Number" type="tel" maxlength="10" required class="input-field" />
+
+      <!-- 🏢 Block field shown only if block mode is enabled -->
+      <input *ngIf="blockModeEnabled"
+            [(ngModel)]="newOwnerBlock"
+            name="ownerBlock"
+            placeholder="Block (e.g., A, B1)"
+            class="input-field" />
+
+      <input [(ngModel)]="newOwnerFlat" name="ownerFlat" placeholder="Flat Number" required class="input-field" />
+       <!-- 🆕 Square Feet Field -->
+      <input [(ngModel)]="newOwnerSqft" name="ownerSqft" type="number" placeholder="Square Feet" class="input-field" />
+      </div>
+
+      <div class="input-group role-select">
+      <label for="newOwnerRole">Role:</label>
+      <select id="newOwnerRole" [(ngModel)]="newOwnerRole" name="ownerRole" class="select-field" required>
+      <option value="">-- Select Role --</option>
+      <option value="resident">Resident</option>
+      <option value="tenant">Tenant</option>
+      <option value="owner_admin">Owner Admin</option>
+      </select>
+      </div>
+
+      <button type="submit" class="btn add-btn" [disabled]="!formRef.valid">Add Owner</button>
+      </form>
+
+      <!-- Bulk Import Section -->
+      <div class="excel-import">
+      <label for="excelUpload">Or Import from Excel:</label>
+      <input type="file" id="excelUpload" (change)="handleExcelUpload($event)" accept=".xlsx" />
+      <button (click)="downloadTemplate()" class="btn">Download Template</button>
+      <button [disabled]="!excelFlatOwners.length" (click)="uploadExcelData()" class="btn import-btn">Upload Owners</button>
+      </div>
+
+      <div *ngIf="excelFlatOwners.length">
+      <h4>Preview Uploaded Owners</h4>
+      <table class="preview-table">
+      <thead>
+      <tr>
+        <th>Name</th>
+        <th>Phone Number</th>
+        <th *ngIf="blockModeEnabled">Block</th>
+        <th>Flat Number</th>
+        <th>Role</th>
+        <th *ngIf="invalidRows.length">Errors</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let owner of excelFlatOwners"
+          [class.invalid]="isRowInvalid(owner.FlatNumber)">
+        <td>{{ owner.Name }}</td>
+        <td>{{ owner.PhoneNumber }}</td>
+        <td *ngIf="blockModeEnabled">{{ owner.Block }}</td>
+        <td>{{ owner.FlatNumber }}</td>
+        <td>{{ owner.Role || 'resident' }}</td>
+        <td *ngIf="invalidRows.length">
+          <span *ngFor="let row of invalidRows" [hidden]="row.FlatNumber !== owner.FlatNumber">
+            {{ row.errors.join(', ') }}
+          </span>
+        </td>
+      </tr>
+      </tbody>
+      </table>
+
+      <div *ngIf="invalidRows.length" class="error-msg">
+      ⚠️ {{ invalidRows.length }} rows have validation errors. Fix before uploading.
+      </div>
+      </div>
+
+      <h5>🏢 Flat Owners List</h5>
+      <!-- Block Filter UI (visible only in block mode) -->
+      <div *ngIf="blockModeEnabled && blockList.length > 0" class="block-filter">
+      <label for="blockFilter">Filter by Block:</label>
+      <select id="blockFilter" [(ngModel)]="selectedBlockFilter">
+      <option value="">All Blocks</option>
+      <option *ngFor="let block of blockList" [value]="block">{{ block }}</option>
+      </select>
+      </div>
+
+      <!-- Owner list (filtered conditionally by block if blockModeEnabled) -->
+      <ul class="owners-list">
+      <li *ngFor="let owner of filteredFlatOwners(); let i = index" [class.admin-owner]="owner.role === 'admin'">
+        <div class="flat-owner-card">
+          <div class="owner-info">
+            <span *ngIf="blockModeEnabled && owner.block" class="block-name">{{ owner.block }}-</span>
+            <span class="flat-num">{{ owner.flat }}</span> -
+            <span class="owner-name">{{ owner.name }}</span> -
+            <span class="owner-phone">{{ owner.phoneNumber }}</span>
+            <span *ngIf="owner.role === 'admin'" class="admin-badge">[Admin]</span>
+          </div>
+        
+          <div class="action-buttons">
+            <button (click)="editFlatOwner(i)" class="btn edit-btn">Edit</button>
+            <button (click)="deleteFlatOwner(i)" class="btn delete-btn">Delete</button>
+            <button *ngIf="owner.role !== 'admin'" (click)="makeAdmin(i)" class="btn admin-btn">Promote</button>
+            <button *ngIf="owner.role === 'admin'" (click)="removeAdmin(i)" class="btn revoke-btn">Demote</button>
+          </div>
+        </div>
+        
+      </li>
+      </ul>
+
+      </details>
+
+      <!--Maintanance request-->
+      <details class="provider-section" (toggle)="onMaintenanceToggle($event)">
+      <summary class="collapsible-header">🧰 Maintenance Requests
+        <span *ngIf="hasUnseenRequests" class="dot ms-2"></span>
+      </summary>
+
+      <div class="filter-controls">
+      <div class="filter-row">
+      <div class="filter-group">
+      <label>Year:</label>
+      <select [(ngModel)]="selectedYear" (change)="filterRequestsByMonth()">
+        <option value="">All</option>
+        <option *ngFor="let y of availableYears" [value]="y">{{ y }}</option>
+      </select>
+      </div>
+
+      <div class="filter-group">
+      <label>Month:</label>
+      <select [(ngModel)]="selectedMonth" (change)="filterRequestsByMonth()">
+        <option value="">All</option>
+        <option *ngFor="let m of ['01','02','03','04','05','06','07','08','09','10','11','12']">{{ m }}</option>
+      </select>
+      </div>
+
+      <div class="filter-group">
+      <label>Status:</label>
+      <select [(ngModel)]="selectedStatus" (change)="applyStatusFilter()">
+        <option value="all">All</option>
+        <option value="pending">Pending</option>
+        <option value="in_progress">In Progress</option>
+        <option value="resolved">Resolved</option>
+      </select>
+      </div>
+
+      <div class="filter-group export-btn">
+      <button class="btn btn-sm btn-success" (click)="exportToCSV()">📤 Export CSV</button>
+      </div>
+      </div>
+      </div>
+
+
+      <table class="table table-bordered mt-2">
+      <thead>
+      <tr>
+      <th>Flat</th>
+      <th>Name</th>
+      <th>Message</th>
+      <th>Status</th>
+      <th>Date</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let r of filteredRequests">
+      <td>{{ r.flatNo }}</td>
+      <td>{{ r.name }}</td>
+      <td>{{ r.message }}</td>
+      <td>
+        <span class="badge bg-secondary" *ngIf="r.status === 'pending'">Pending</span>
+        <span class="badge bg-warning" *ngIf="r.status === 'in_progress'">In Progress</span>
+        <span class="badge bg-success" *ngIf="r.status === 'resolved'">Resolved</span>
+
+        <div class="mt-1">
+          <button *ngIf="r.status !== 'resolved'" class="btn btn-sm btn-outline-success" (click)="updateRequestStatus(r, 'resolved')">
+            ✅ Mark Resolved
+          </button>
+        </div>
+      </td>
+      <td>{{ r.timestamp.toDate() | date:'shortDate' }}</td>
+      </tr>
+      </tbody>
+      </table>
+      </details>
+
+      <!--security-->
+      <details class="collapsible-section">
+        <summary class="collapsible-header">🛡️ Manage Security Users</summary>
+      
+        <form (ngSubmit)="addSecurityUser()" #secForm="ngForm" class="form-section">
+          <label>Security Name:</label>
+          <input type="text" [(ngModel)]="newSecurity.name" name="name" required />
+      
+          <label>Phone Number:</label>
+          <input
+              type="tel"
+              [(ngModel)]="newSecurity.phone"
+              name="phone"
+              required
+              pattern="^[0-9]{10}$"
+              maxlength="10"
+              title="Enter a valid 10-digit phone number"
+            />
+      
+          <!-- <label>Email:</label> -->
+          <!-- <input type="email" [(ngModel)]="newSecurity.email" name="email" required /> -->
+      
+          <button class="btn primary" type="submit" [disabled]="secForm.invalid">➕ Add Security</button>
+        </form>
+      
+        <div *ngFor="let sec of securityUsers" class="gate-pass-card">
+          <p><strong>Name:</strong> {{ sec.name }}</p>
+          <p><strong>Phone:</strong> {{ sec.phoneNumber }}</p>
+          <!-- <p><strong>Email:</strong> {{ sec.email }}</p> -->
+          <button class="btn danger" (click)="removeSecurityUser(sec.id)">❌ Remove</button>
+        </div>
+      </details>
+      
+
+
+      <!--report to app owner-->
+      <details>
+      <summary class="collapsible-header">❓ Report an Issue to App Owner</summary>
+
+      <textarea
+      [(ngModel)]="adminQueryMessage"
+      placeholder="Enter your question..."
+      class="textarea"
+      required
+      minlength="10"
+      ></textarea>
+
+      <p *ngIf="adminQueryMessage && adminQueryMessage.length < 10" class="error-text">
+      ⚠️ Please enter at least 10 characters.
+      </p>
+
+      <button
+      (click)="submitAdminQuery()"
+      class="btn submit-btn"
+      [disabled]="!adminQueryMessage || adminQueryMessage.length < 10"
+      >
+      Submit Query
+      </button>
+
+      <h5>📨 Your Queries</h5>
+      <ul>
+      <li *ngFor="let q of adminQueries">
+      {{ q.message }} - <strong>{{ q.status }}</strong>
+      </li>
+      </ul>
+      </details>
+
+      <hr class="admin-divider" />
+      <!-- 🔹 Communication & Voting -->
+      <!--announcements-->
+      <details class="collapsible-section" (toggle)="onAnnouncementsToggle($event)">
+      <summary class="collapsible-header">📢 Announce a Message
+        <span *ngIf="hasUnseenAnnouncements" class="dot ms-2"></span>
+      </summary>
+
+      <div class="form-group announcement-form">
+      <label for="announcementMessage">Message</label>
+      <textarea
+        id="announcementMessage"
+        [(ngModel)]="announcementMessage"
+        placeholder="Enter message"
+        class="form-control"
+        rows="3"
+      ></textarea>
+
+      <div class="checkbox-group">
+        <input type="checkbox" id="showBanner" [(ngModel)]="showAsBanner" />
+        <label for="showBanner" class="mb-0">Show as scrolling banner</label>
+      </div>
+
+
+      <label for="expiresAt">Expiry Date</label>
+      <input
+        type="date"
+        id="expiresAt"
+        [(ngModel)]="expiresAt"
+        class="form-control"
+      />
+
+      <button
+        (click)="postAnnouncement()"
+        class="btn btn-primary mt-3 w-100"
+      >
+        📨 Post Announcement
+      </button>
+      </div>
+
+
+
+      <h5 class="mt-4">📌 Announcements</h5>
+      <ul class="announcement-list">
+      <li *ngFor="let msg of announcements" class="announcement-item">
+        <p><strong>{{ msg.message }}</strong></p>
+        <small>{{ msg.postedAt ? (msg.postedAt.toDate() | date:'short') : 'Date not available' }}</small>
+
+        <div class="mt-2">
+          <button (click)="loadRSVPs(msg.id)">View RSVPs</button>
+        </div>
+
+        <ul *ngIf="msg.rsvps?.length" class="rsvp-list">
+          <li *ngFor="let rsvp of msg.rsvps">
+            {{ rsvp.name }} ({{ rsvp.flatNo }}): {{ rsvp.status }}
+            <br />
+            <small *ngIf="rsvp.message">Note: {{ rsvp.message }}</small>
+          </li>
+        </ul>
+
+        <p *ngIf="!msg.rsvps?.length">No RSVPs yet.</p>
+      </li>
+      </ul>
+      </details>
+
+      <!--polls-->
+      <details class="collapsible-section" (toggle)="onPollsToggle($event)">
+      <summary class="collapsible-header">🗳️ Polls/Voting
+        <span *ngIf="hasUnseenPolls" class="dot ms-2"></span>
+      </summary>
+
+      <div class="poll-form">
+        <input [(ngModel)]="newPoll.title" placeholder="Poll Title" />
+        <textarea [(ngModel)]="newPoll.description" placeholder="Description"></textarea>
+        
+        <div *ngFor="let option of newPoll.options; let i = index">
+          <input [(ngModel)]="newPoll.options[i]" placeholder="Option {{ i + 1 }}" />
+        </div>&nbsp;
+        <div>
+          <button (click)="addOption()">+ Add Option</button>
+          <button (click)="createPoll()">Create Poll</button>
+        </div>
+      </div>
+      <div class="dashed-line"></div>
+      <div class="existing-polls">
+        <h3>Existing Polls</h3>
+        <div *ngFor="let poll of polls" class="admin-poll-card">
+          <div class="admin-poll-header">
+            <div>
+              <h4 class="poll-title">{{ poll.title }}</h4>
+              <p class="poll-description">{{ poll.description }}</p>
+            </div>
+            <div class="poll-status" [class.closed]="!poll.isActive">
+              {{ poll.isActive ? '🟢 Active' : '🔴 Closed' }}
+            </div>
+          </div>
+        
+          <ul class="poll-votes">
+            <li *ngFor="let option of poll.options">
+              <span class="option-label">{{ option }}</span>
+              <span class="vote-count">{{ getVotesCount(poll, option) }} votes</span>
+            </li>
+          </ul>
+        
+          <div class="poll-actions">
+            <button class="close-btn" *ngIf="poll.isActive" (click)="closePoll(poll)">
+              🚫 Close Poll
+            </button>
+            <button class="delete-btn1" (click)="deletePoll(poll)">
+              🗑️ Delete Poll
+            </button>
+          </div>
+        </div>
+        
+      </div>
+
+      </details>
+
+      <hr class="admin-divider" />
+      <!-- 🔹 Convenience Services -->
+      <!--market place-->
+      <details class="collapsible-section" (toggle)="onMarketplaceToggle($event)">
+      <summary class="collapsible-header">🧺 Marketplace
+        <span *ngIf="hasUnseenMarketplaceItems" class="dot ms-2"></span>
+      </summary>
+
+      <div class="section-content">
+      <app-marketplace
+        [apartmentId]="adminApartmentId"
+        [postedBy]="phoneNumber"
+        [name] = "adminName" (itemsLoaded)="onMarketplaceItemsLoaded($event)">
+      </app-marketplace>
+      </div>
+      </details>
+
+      <!--local service providers-->
+      <details class="provider-section">
+      <summary class="collapsible-header">🏠 Local Service Providers</summary>
+      <div class="form-wrapper">
+        <form (ngSubmit)="addProvider()" #providerForm="ngForm">
+          <input
+            [(ngModel)]="provider.name"
+            name="name"
+            placeholder="Name"
+            required
+            class="form-field"
+            #nameInput="ngModel"
+          />
+          <div *ngIf="nameInput.invalid && nameInput.touched" class="error-message">
+            Name is required.
+          </div>
+        
+          <input
+            [(ngModel)]="provider.category"
+            name="category"
+            placeholder="Category (e.g., Plumber)"
+            required
+            class="form-field"
+            #categoryInput="ngModel"
+          />
+          <div *ngIf="categoryInput.invalid && categoryInput.touched" class="error-message">
+            Category is required.
+          </div>
+        
+          <input
+            [(ngModel)]="provider.phone"
+            name="phone"
+            placeholder="Phone Number"
+            required
+            class="form-field"
+            pattern="^[0-9]{10}$"
+            minlength="10"
+            maxlength="10"
+            #phoneInput="ngModel"
+          />
+          <div *ngIf="phoneInput.invalid && phoneInput.touched" class="error-message">
+            <div *ngIf="phoneInput.errors?.['required']">Phone number is required.</div>
+            <div *ngIf="phoneInput.errors?.['pattern'] || phoneInput.errors?.['minlength'] || phoneInput.errors?.['maxlength']">
+              Phone number must be exactly 10 digits.
+            </div>
+          </div>
+        
+          <textarea
+            [(ngModel)]="provider.description"
+            name="description"
+            placeholder="Description (optional)"
+            class="form-field"
+          ></textarea>
+        
+          <button type="submit" [disabled]="!providerForm.form.valid" class="submit-btn">
+            ➕ Add Provider
+          </button>
+        </form>
+        
+      </div>
+      <div class="provider-list">
+      <div *ngFor="let sp of serviceProviders" class="provider-card">
+        <h4>{{ sp.name }} <span class="category">({{ sp.category }})</span></h4>
+        <p *ngIf="sp.description">{{ sp.description }}</p>
+        <p>📞 <a [href]="'tel:' + sp.phone">{{ sp.phone }}</a></p>
+
+        <div class="actions">
+          <!-- <button class="btn btn-edit" (click)="editProvider(sp)">✏️ Edit</button> -->
+          <button class="btn btn-danger" (click)="deleteProvider(sp.id)">🗑️ Delete</button>
+        </div>
+      </div>
+      </div>
+      </details>
+      <hr class="admin-divider" />
+      <!-- 🔹 Planning & Configuration -->
+      <!--Events and Booking-->
+      <details>
+      <summary class="collapsible-header">📅 Calendar - Events & Bookings</summary>
+
+      <app-admin-calendar
+      *ngIf="adminApartmentId"
+      [apartmentId]="this.adminApartmentId!" 
+      [role]="'admin'">
+      </app-admin-calendar>
+      </details>
+
+      <!-- settings-->
+      <details class="collapsible-bill-section" id="global-settings">
+      <summary class="collapsible-header">
+      ⚙️ Global Settings
+      </summary>
+      <details class="subsection-box">
+      <summary class="collapsible-header1">💧 Water Bill Settings</summary>
+
+      <div class="smart-settings-grid">
+        <label>Month:</label>
+        <input type="month" [(ngModel)]="settingsApplyMonth" />
+
+        <label>Price per Liter (₹):</label>
+        <input type="number" [(ngModel)]="waterTariffPerLiter" />
+
+        <label>Usage Threshold (Liters):</label>
+        <input type="number" [(ngModel)]="waterUsageThreshold" />
+
+        <label>Extra Charge (₹):</label>
+        <input type="number" [(ngModel)]="extraWaterCharge" />
+      </div>
+
+      <div class="action-buttons">
+        <button class="btn btn-primary" (click)="saveCurrentMonthSettings()">
+          💾 Save for Selected Month
+        </button>
+
+        <button class="btn btn-outline-primary" (click)="applyToAllRemainingMonths()">
+          ↪️ Apply to All Remaining Months
+        </button>
+
+        <button class="btn btn-outline-secondary" (click)="useAsYearlyDefault()">
+          ⭐ Set as Yearly Default
+        </button>
+      </div>
+
+      <div class="copy-settings">
+        <label>Copy settings from:</label>
+        <input type="month" [(ngModel)]="copyFromMonth" />
+        <button class="btn btn-info" (click)="copySettings(copyFromMonth, settingsApplyMonth)">
+          📋 Copy to Selected
+        </button>
+      </div>
+      <table class="table table-bordered table-hover table-striped shadow-sm rounded">
+        <thead class="table-primary text-center">
+          <tr>
+            <th>📅 Month</th>
+            <th>💧 Tariff (₹/L)</th>
+            <th>📊 Threshold (Liters)</th>
+            <th>⚠️ Extra Charge (₹)</th>
+            <th>⚙️ Actions</th>
+          </tr>
+        </thead>
+        <tbody class="text-center align-middle">
+          <tr *ngFor="let entry of waterBillingEntries">
+            <td><strong>{{ entry[0] }}</strong></td> <!-- Month -->
+            <td>₹{{ entry[1].waterTariffPerLiter }}</td>
+            <td>{{ entry[1].waterUsageThreshold }}</td>
+            <td>₹{{ entry[1].extraWaterCharge }}</td>
+            <td>
+              <button class="btn btn-sm btn-outline-primary me-2" (click)="edit(entry[0])">
+                ✏️ Edit
+              </button>
+              <button class="btn btn-sm btn-outline-danger" (click)="delete(entry[0])">
+                🗑️ Delete
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="waterBillingEntries.length === 0">
+            <td colspan="5" class="text-muted fst-italic">No water billing settings found.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      </details>
+
+
+
+      <details class="subsection-box ">
+      <summary class="collapsible-header1">
+        💳 Add Payment details
+      </summary>
+
+      <form (ngSubmit)="saveUpi()">
+        <label>UPI ID:</label>
+        <input type="text" [(ngModel)]="upiId" name="upiId" required />
+        
+        <label>Provider:</label>
+        <select [(ngModel)]="upiProvider" name="upiProvider" required>
+          <option value="PhonePe">PhonePe</option>
+          <option value="GPay">GPay</option>
+          <option value="Paytm">Paytm</option>
+        </select>
+        
+        <button type="submit" class="apply-settings-btn">Save</button>
+      </form>
+
+      <div *ngIf="paymentId" style="margin-top: 10px; color: green; display: flex; align-items: center; gap: 10px;">
+        Payment saved with ID: <strong>{{ paymentId }}</strong>
+        <button type="button" (click)="deleteUpi()" style="background-color: #d9534f; color: white; border: none; padding: 4px 10px; cursor: pointer; border-radius: 4px;">
+          Delete
+        </button>
+      </div>
+
+      </details>
+      <!-- <details class="collapsible-bill-section" >
+      <summary class="collapsible-header">
+        ⚙️  Water Bill Settings
+      </summary>
+
+      <div class="water-settings-box">
+        <label>Price per Liter (₹):</label>
+        <input type="number" [(ngModel)]="waterTariffPerLiter" placeholder="0.05" />
+
+        <label>Usage Threshold (Liters):</label>
+        <input type="number" [(ngModel)]="waterUsageThreshold" placeholder="10000" />
+
+        <label>Extra Charge if Exceeded (₹):</label>
+        <input type="number" [(ngModel)]="extraWaterCharge" placeholder="100" />
+
+        <button (click)="applySettingsToAll()" class="apply-settings-btn">
+          💾 Apply to All / Save Settings
+        </button>
+      </div>
+      </details> -->
+      </details>
+
+  </div>
+
+  <!-- Flat Owner Tab -->
+  <div *ngIf="activeTab === 'flatowner'" class="flatowner-dashboard">
+    <app-dashboard *ngIf="adminFlatOwnerId" [ownerId]="adminFlatOwnerId"></app-dashboard>
+
+  </div>
+</div>
+
+<div class="modal" *ngIf="editingOwner">
+  <div class="modal-content">
+    <h4>Edit Flat Owner</h4>
+    <input [(ngModel)]="editingOwner.name" placeholder="Owner Name" class="input-field" />
+    <input [(ngModel)]="editingOwner.phoneNumber" placeholder="Phone Number" class="input-field" />
+    <input [(ngModel)]="editingOwner.flat" placeholder="Flat Number" class="input-field" />
+    
+    <label for="editOwnerRole">Role:</label>
+    <select [(ngModel)]="editingOwner.role" class="select-field" id="editOwnerRole">
+      <option value="resident">Resident</option>
+      <option value="tenant">Tenant</option>
+      <option value="owner_admin">Owner Admin</option>
+    </select>
+
+    <div class="modal-actions">
+      <button class="btn save-btn" (click)="saveEditedOwner(oldPhoneNumber)">Save</button>
+      <button class="btn cancel-btn" (click)="cancelEdit()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal-backdrop" *ngIf="editingMonth">
+  <div class="modal-box">
+    <h3>Edit Water Billing for {{ editingMonth }}</h3>
+
+    <label>Tariff per Liter (₹):</label>
+    <input type="number" [(ngModel)]="editedValues.waterTariffPerLiter" />
+
+    <label>Usage Threshold (Liters):</label>
+    <input type="number" [(ngModel)]="editedValues.waterUsageThreshold" />
+
+    <label>Extra Charge (₹):</label>
+    <input type="number" [(ngModel)]="editedValues.extraWaterCharge" />
+
+    <div class="modal-actions">
+      <button (click)="saveEditedMonth()">💾 Save</button>
+      <button (click)="cancelEdit1()">✖ Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- <app-upgrade-model
+  [visible]="showUpgrade"
+  (close)="showUpgrade = false"
+  (pay)="handleUpgradePayment()">
+</app-upgrade-model> -->
+

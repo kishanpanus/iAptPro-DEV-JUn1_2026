@@ -1,0 +1,166 @@
+.marketplace-container {
+    max-width: 1000px;
+    margin: auto;
+    padding: 20px;
+  }
+  
+  .marketplace-title {
+    font-size: 28px;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  
+  .listing-form {
+    background: #f9f9f9;
+    padding: 16px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+  
+  .form-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  
+  .form-grid input,
+  .form-grid select {
+    flex: 1 1 200px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+  }
+  
+  textarea {
+    width: 100%;
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+  }
+  
+  .btn.btn-post {
+    margin-top: 10px;
+    background: #4caf50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  
+  .listing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
+  }
+  
+  .listing-card {
+    background: white;
+    border: 1px solid #eee;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .item-image {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .item-details {
+    padding: 12px;
+  }
+  
+  .item-details h4 {
+    margin: 0 0 6px;
+  }
+  
+  .price {
+    font-weight: bold;
+    color: #2e7d32;
+  }
+  
+  .category, .description, .owner {
+    font-size: 14px;
+    color: #555;
+    margin: 4px 0;
+  }
+
+  .marketplace-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    margin-bottom: 16px;
+    transition: box-shadow 0.3s ease;
+  }
+  
+  .marketplace-card:hover {
+    box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+  }
+  
+  .item-title {
+    font-weight: bold;
+    font-size: 18px;
+    margin-bottom: 4px;
+  }
+  
+  .item-category {
+    font-size: 14px;
+    color: #888;
+    margin-bottom: 4px;
+  }
+  
+  .item-price {
+    color: #007f00;
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 4px;
+  }
+  
+  .item-description {
+    font-size: 14px;
+    margin-bottom: 6px;
+  }
+  
+  .item-contact, .item-postedby {
+    font-size: 13px;
+    color: #444;
+    margin-bottom: 6px;
+  }
+  
+  .item-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+  }
+  
+  .btn-sm {
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    border: none;
+  }
+  
+  .btn-success {
+    background-color: #4CAF50;
+    color: white;
+  }
+  
+  .btn-danger {
+    background-color: #f44336;
+    color: white;
+  }
+  
+  .btn-primary {
+    background-color: #2196F3;
+    color: white;
+  }
+  

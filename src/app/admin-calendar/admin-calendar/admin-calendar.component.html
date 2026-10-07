@@ -1,0 +1,43 @@
+<div class="calendar-container">
+    <h4>{{ role === 'admin' ? (editingEventId ? '✏️ Edit Event' : '📅 Add New Event') : '📅 Request Clubhouse Booking' }}</h4>
+  
+    <div class="calendar-form">
+      <input type="date" [(ngModel)]="selectedDate" />
+      <input type="time" [(ngModel)]="selectedTime" />
+      <input type="text" [(ngModel)]="newEventTitle" placeholder="Event Title" />
+  
+      <select [(ngModel)]="newEventType" [disabled]="role !== 'admin'">
+        <option value="clubhouse">Clubhouse Booking</option>
+        <option value="event">Community Event</option>
+      </select>
+  
+      <button (click)="addOrUpdateEvent()">
+        {{ editingEventId ? 'Update' : (role === 'admin' ? 'Add' : 'Request') }}
+      </button>
+  
+      <button *ngIf="editingEventId" class="cancel-btn" (click)="clearForm()">Cancel</button>
+    </div>
+  
+    <h4>📌 Events & Bookings</h4>
+    <ul class="event-list">
+      <li *ngFor="let event of visibleEvents">
+        <div>
+          <strong>{{ event.date | date: 'medium' }}</strong> –
+          {{ event.title }}
+          <span class="event-tag" [ngClass]="event.type">{{ event.type }}</span>
+          <span *ngIf="event.status" class="event-status">({{ event.status }})</span>
+          <span *ngIf="event.requestedBy">- {{ event.requestedBy.block }}-{{ event.requestedBy.flat }} ({{ event.requestedBy.phone }})</span>
+        </div>
+        <div class="admin-actions" *ngIf="role === 'admin'">
+          <button class="edit-btn" (click)="editEvent(event)">✏️</button>
+          <button class="delete-btn" (click)="deleteEvent(event.id)">🗑️</button>
+          <button *ngIf="event.status === 'pending'" (click)="approveEvent(event.id)">✅</button>
+          <button *ngIf="event.status === 'pending'" (click)="rejectEvent(event.id)">❌</button>
+        </div>
+      </li>
+    </ul>
+    <p *ngIf="visibleEvents?.length === 0" class="text-muted">
+      No events or bookings available at the moment.
+    </p>
+  </div>
+  

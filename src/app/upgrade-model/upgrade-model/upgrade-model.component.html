@@ -1,0 +1,9 @@
+<div class="plan-card" *ngFor="let plan of plans">
+  <h3>{{ plan.title }}</h3>
+  <p>{{ plan.description }}</p>
+  <ul>
+    <li *ngFor="let feature of plan.features">{{ feature }}</li>
+  </ul>
+  <div><strong>₹{{ plan.price }}</strong></div>
+  <button class="btn btn-primary mt-2" (click)="selectPlan(plan)">Choose</button>
+</div>

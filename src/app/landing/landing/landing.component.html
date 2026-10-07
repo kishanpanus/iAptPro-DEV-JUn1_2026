@@ -1,0 +1,387 @@
+<header class="mobile-header">
+  <a routerLink="/" (click)="reloadPage($event)">
+    <img src="assets/apt3mnewlogo.png" class="logo" alt="Apt3M Logo" />
+  </a>
+  <!-- <div class="spacer"></div> -->
+  <!-- DESKTOP links (unchanged) -->
+  <nav class="main-nav desktop-menu">
+    <a href="#features">Features</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#support">Support</a>
+    <a href="#contact">Contact</a>
+    <!-- <button class="btn-login" (click)="goToLogin()">Login/Register   </button> -->
+    <div class="dropdown">
+      <button class="btn-login">🔒 Login | Register</button>
+      <div class="dropdown-content">
+        <a href="/login">Resident Login</a>
+        <a href="/enrollment">Register Apartment</a>
+      </div>
+    </div>
+    
+  </nav>
+
+  <!-- MOBILE -->
+  <div class="menu-wrapper">
+    <button class="hamburger-btn" (click)="toggleMenu(); $event.stopPropagation()" aria-label="Toggle menu">
+      <div class="hamburger-icon">
+      </div>
+    </button>
+    
+    
+
+    <!-- Dark translucent backdrop -->
+    <div class="menu-backdrop" (click)="closeMenu()" [class.show]="isMenuOpen"></div>
+
+    <!-- Floating sheet -->
+    <nav class="floating-menu" [class.show]="isMenuOpen">
+      <a href="#features" (click)="closeMenu()">Features</a>
+      <a href="#pricing"  (click)="closeMenu()">Pricing</a>
+      <a href="#support"  (click)="closeMenu()">Support</a>
+      <a href="#contact"  (click)="closeMenu()">Contact</a>
+      <!-- <button class="btn-login" (click)="goToLogin(); closeMenu()">Login/Register</button> -->
+      <div class="dropdown">
+        <button class="btn-login">🔒 Login | Register</button>
+        <div class="dropdown-content">
+          <a href="/login">Resident Login</a>
+          <a href="/enrollment">Register Apartment</a>
+        </div>
+      </div>
+      
+    </nav>
+  </div>
+</header>
+
+<!-- <button class="btn btn-primary" (click)="showEnrollmentModal = true">Register Apartment</button> -->
+<section class="hero">
+  <div class="hero-text">
+    <h3 class="hero-subheading">One App. Everything Your Apartment Needs.</h3>
+    <h1>Smarter Apartment Management Starts Here</h1>
+    <p>
+      Streamline announcements, payments, and more for your community – all in one app.
+    </p>
+
+    <div class="hero-buttons-group">
+      <div class="store-badges-wrapper">
+        <div class="store-badges">
+          <a href="https://play.google.com" target="_blank">
+            <img src="assets/google-play-badge.png" alt="Google Play" />
+          </a>
+          <a href="https://apps.apple.com" target="_blank">
+            <img src="assets/app-store-badge.png" alt="App Store" />
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-circle-content">
+    <div class="circle-inner">
+      <h5>Why Choose Apt3M?</h5>
+      <ul class="circle-list">
+        <li>✔ Simple to Use</li>
+        <li>✔ No Setup Cost</li>
+        <li>✔ Secure & Private</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="hero-img">
+    <img src="assets/mobileapt3m1.png" alt="App Preview" />
+  </div>
+
+
+</section>
+<div class="floating-buildings">
+  <img src="assets/building1.png" style="left: 10%; width: 110px;" class="float delay-1" />
+  <img src="assets/building2.png" style="left: 30%; width: 90px;" class="float delay-2" />
+  <img src="assets/building3.png" style="left: 50%; width: 70px;" class="float delay-3" />
+  <img src="assets/building4.png" style="left: 70%; width: 50px;" class="float delay-4" />
+  <img src="assets/building5.png" style="left: 85%; width: 30px;" class="float delay-5" />
+</div>
+
+<!-- 
+<svg class="buildings-line" viewBox="0 0 1000 100" preserveAspectRatio="none">
+  <path d="M0,50 L100,30 L200,70 L300,30 L400,70 L500,30 L600,70 L700,30 L800,70 L900,30 L1000,50"
+        stroke="#0047ab" stroke-width="2" fill="none" stroke-dasharray="10,5" />
+</svg> -->
+<svg viewBox="0 0 1440 120">
+  <path fill="#ffffff" d="M0,0 C400,120 1000,0 1440,100 L1440,0 L0,0 Z"></path>
+</svg>
+
+  <!-- Skyline divider -->
+  <!-- <div class="skyline-container">
+    
+    <img src="assets/skyline-wave.png" class="skyline-svg" alt="Skyline Wave" />
+  </div> -->
+
+
+<section class="how-it-works">
+  <div class="step">
+    <div class="icon">🏢</div>
+    <h4>Register Apartment</h4>
+    <p>Create your apartment community in minutes.</p>
+  </div>
+  <div class="step">
+    <div class="icon">👥</div>
+    <h4>Invite Residents</h4>
+    <p>Send secure access links to owners and tenants.</p>
+  </div>
+  <div class="step">
+    <div class="icon">📲</div>
+    <h4>Manage Digitally</h4>
+    <p>From dues to gate passes, all in one place.</p>
+  </div>
+</section>
+
+
+
+<!-- Features Section -->
+<section class="page-section" id="features">
+  <h1>Everything You Need to Manage Your Apartment</h1>
+  <ul class="feature-list">
+    <li>📢 <strong>Centralized Announcements:</strong> Real-time building updates via push notifications.</li>
+    <li>🛠️ <strong>Maintenance Requests:</strong> Raise, track and resolve complaints with image support.</li>
+    <li>💳 <strong>Digital Payments:</strong> Pay dues via UPI with instant receipts.</li>
+    <li>🚪 <strong>Gate Pass System:</strong> QR-based visitor and delivery management.</li>
+    <li>🗳️ <strong>Polls and Voting:</strong> Engage residents in decision-making polls.</li>
+    <li>🛒 <strong>Marketplace:</strong> In-app buy/sell section for residents.</li>
+    <li>📂 <strong>Document Vault:</strong> Store and access bylaws, invoices and more.</li>
+  </ul>
+</section>
+
+<!-- Pricing Section -->
+<section class="page-section" id="pricing">
+  <h1>Transparent Pricing, Tailored for Every Apartment</h1>
+
+  <div class="table-container">
+    <table class="pricing-table">
+      <thead>
+        <tr>
+          <th>Plan</th>
+          <th>Flats Supported</th>
+          <th>Features</th>
+          <th>Price</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Startup</strong></td>
+          <td>Up to 20</td>
+          <td>Basic announcements, gate pass, community support</td>
+          <td>₹499/month</td>
+        </tr>
+        <tr>
+          <td><strong>Free Trial</strong></td>
+          <td>All</td>
+          <td>All premium features for 30 days</td>
+          <td>₹0</td>
+        </tr>
+        <tr>
+          <td><strong>Standard</strong></td>
+          <td>Up to 50</td>
+          <td>Payments, gate pass, basic support</td>
+          <td>₹999/month</td>
+        </tr>
+        <tr>
+          <td><strong>Premium</strong></td>
+          <td>Unlimited</td>
+          <td>Marketplace, advanced billing, premium support</td>
+          <td>₹1999/month</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="note">Custom plans available for large societies. <a href="#contact">Contact us</a> for details.</p>
+</section>
+
+
+
+<!-- Support Section -->
+<section class="page-section" id="support">
+  <h1>Help When You Need It</h1>
+  <h3>Frequently Asked Questions</h3>
+
+  <div class="faq-item" *ngFor="let faq of faqs">
+    <button (click)="faq.open = !faq.open" class="faq-question">
+      {{ faq.icon }} {{ faq.question }}
+    </button>
+    <div class="faq-answer" *ngIf="faq.open">
+      {{ faq.answer }}
+    </div>
+  </div>
+
+  <h3>Contact Support</h3>
+  <p><strong>Email:</strong> <a href="mailto:support&#64;apt3m.in">support&#64;apt3m.com</a></p>
+  <p><em>Typical response time: 4 business hours</em></p>
+</section>
+
+<section class="page-section" id="app-download">
+  <div class="container">
+    <h2>Get the Apt3M App</h2>
+    <p>Manage, pay, and communicate – all from one powerful app built for your apartment community.</p>
+
+    <div class="app-download-layout">
+      <div class="store-buttons">
+        <img src="assets/google-play-badge.png" alt="Google Play" />
+        <img src="assets/app-store-badge.png" alt="App Store" />
+      </div>
+
+      <div class="qr-box">
+        <img src="assets/apt3m-qr.png" alt="QR Code for Apt3M App" class="qr-img" />
+        <p class="qr-caption">Scan to download</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+<!-- Contact Section -->
+<section class="page-section" id="contact">
+  <h1>Let’s Talk!</h1>
+  <p><strong>Email:</strong> support&#64;apt3m.com</p>
+
+  <form class="contact-form">
+    <input type="text" placeholder="Your Name" required />
+    <input type="email" placeholder="Your Email" required />
+    <textarea placeholder="Your Message" rows="5" required></textarea>
+    <button type="submit">Send Message</button>
+  </form>
+
+  <p class="social">
+    Follow us on
+    <a href="#">Instagram</a>,
+    <a href="#">Twitter</a>,
+    <a href="#">LinkedIn</a>
+  </p>
+</section>
+
+<!-- <footer class="footer">
+  <p>© 2025 Apt3M. All rights reserved.</p>
+  <nav class="footer-links">
+    <a routerLink="/privacy-policy">Privacy Policy</a> |
+    <a routerLink="/terms-of-use">Terms of Use</a> |
+    <a routerLink="/contact-us">Contact Us</a>
+  </nav>
+</footer> -->
+<div class="app-footer">
+  <div class="footer-inner">
+    <p>&copy; 2025 Apt3M. All rights reserved.</p>
+    <div class="footer-links">
+      <a href="#" (click)="openFooterModal('privacy')">Privacy Policy</a>
+      <a href="#" (click)="openFooterModal('terms')">Terms of Use</a>
+      <a href="#" (click)="scrollToContact()">Contact Us</a>
+    </div>
+  </div>
+</div>
+
+<!-- Footer Modal -->
+<!-- Footer Modal -->
+<!-- Footer Modal -->
+<div *ngIf="footerModalType" class="footer-modal-wrapper">
+  <div class="footer-modal-backdrop" (click)="closeFooterModal()"></div>
+  <div class="footer-modal">
+    <div class="footer-modal-content" (click)="$event.stopPropagation()">
+      <h2>{{ footerModalTitle }}</h2>
+      <div class="modal-body">
+        <ng-container [ngSwitch]="footerModalType">
+          <div *ngSwitchCase="'privacy'">
+            <p><strong>Last updated:</strong> July 17, 2025</p>
+            <p>Your privacy is important to us. Apt3M is committed to protecting the data you share with us. This policy outlines how we collect, use, and safeguard your information.</p>
+          
+            <h4>1. Information We Collect</h4>
+            <ul>
+              <li>Contact details (name, phone, email)</li>
+              <li>Apartment-related data (flat/block info, complaints, UPI IDs)</li>
+              <li>Usage data (app interactions, page views)</li>
+            </ul>
+          
+            <h4>2. How We Use Your Information</h4>
+            <ul>
+              <li>To enable community communication</li>
+              <li>To process payments and maintain records</li>
+              <li>To send updates, alerts, or announcements</li>
+            </ul>
+          
+            <h4>3. Data Sharing</h4>
+            <p>We do not sell your data. We may share information with trusted third parties only to fulfill functionality (e.g., payment providers).</p>
+          
+            <h4>4. Your Rights</h4>
+            <p>You may request data deletion, correction, or access at any time by contacting support&#64;apt3m.com.</p>
+          
+            <h4>5. Security</h4>
+            <p>We use encryption, access controls, and secure databases to protect your data.</p>
+          
+            <h4>6. Cookies</h4>
+            <p>We may use cookies to enhance user experience and app performance. You can disable cookies in your browser settings.</p>
+          
+            <h4>7. Changes</h4>
+            <p>We may update this policy. Changes will be posted here with the effective date.</p>
+          </div>
+          
+          <div *ngSwitchCase="'terms'">
+            <p><strong>Effective date:</strong> July 17, 2025</p>
+          
+            <h4>1. Acceptance</h4>
+            <p>By using Apt3M, you agree to these terms. If you do not agree, please do not use the platform.</p>
+          
+            <h4>2. Services Offered</h4>
+            <p>Apt3M provides apartment management tools including announcements, billing, gate pass systems, and support utilities.</p>
+          
+            <h4>3. User Responsibilities</h4>
+            <ul>
+              <li>Provide accurate information during registration</li>
+              <li>Use the platform lawfully and respectfully</li>
+              <li>Keep login credentials secure</li>
+            </ul>
+          
+            <h4>4. Payments</h4>
+            <p>Paid plans must be renewed monthly. Failure to pay may result in suspended access to premium features.</p>
+          
+            <h4>5. Termination</h4>
+            <p>We may suspend or terminate your account if you breach these terms or misuse the service.</p>
+          
+            <h4>6. Liability</h4>
+            <p>Apt3M is not liable for any damages resulting from misuse, data loss, or third-party issues.</p>
+          
+            <h4>7. Modifications</h4>
+            <p>We may revise these terms periodically. You are responsible for reviewing changes.</p>
+          
+            <h4>8. Contact</h4>
+            <p>For questions, email <strong>support&#64;apt3m.com</strong></p>
+          </div>
+          
+        </ng-container>
+      </div>
+      <button class="footer-modal-close" (click)="closeFooterModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+<!-- Enrollment Modal -->
+
+<!-- Enrollment Modal -->
+<!-- ✅ FIXED STRUCTURE -->
+<div *ngIf="showEnrollmentModal">
+<!-- MODAL WRAPPER controlled via binding -->
+<div *ngIf="showEnrollmentModal">
+  <div class="modal-backdrop" (click)="showEnrollmentModal = false"></div>
+
+  <div class="modal-wrapper">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <app-enrollment
+        [(visible)]="showEnrollmentModal"
+        [showBackToLogin]="false">
+      </app-enrollment>
+    </div>
+  </div>
+</div>
+
+
+
+

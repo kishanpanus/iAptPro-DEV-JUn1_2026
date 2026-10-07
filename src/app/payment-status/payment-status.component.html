@@ -1,0 +1,15 @@
+<div *ngIf="status === 'loading'">
+    <p>🔄 Verifying your payment...</p>
+  </div>
+  
+  <div *ngIf="status === 'success'">
+    <h2 style="color: green;">✅ Payment Successful!</h2>
+    <p>Your Order ID: {{ orderId }}</p>
+    <p>Redirecting you to enrollment confirmation...</p>
+  </div>
+  
+  <div *ngIf="status === 'failed'">
+    <h2 style="color: red;">❌ Payment Failed</h2>
+    <p>If money was deducted, please contact support with Order ID: {{ orderId }}</p>
+  </div>
+  

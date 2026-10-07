@@ -1,0 +1,15 @@
+<div class="enter-pin-container">
+    <h3>🔒 Enter Your 4-digit PIN</h3>
+  
+    <input
+      type="password"
+      maxlength="4"
+      [(ngModel)]="pin"
+      class="form-control"
+      placeholder="Enter PIN" />
+  
+    <button class="btn btn-primary mt-3" (click)="verifyPin()">Login</button>
+  
+    <p class="text-danger mt-2" *ngIf="error">{{ error }}</p>
+  </div>
+  

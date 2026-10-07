@@ -1,0 +1,217 @@
+<div class="dashboard">
+  <h2>🛡️ SuperAdmin Dashboard</h2>
+
+  <!-- Add New Apartment -->
+  <details class="card">
+    <summary><h3>🏠 Add New Apartment</h3></summary>
+    <div class="add-apartment-form">
+      <form (ngSubmit)="addApartment()">
+        <div class="form-group">
+          <label for="apartmentName">Apartment Name:</label>
+          <input
+            id="apartmentName"
+            [(ngModel)]="newApartment.name"
+            name="name"
+            required
+          />
+        </div>
+        <button
+          class="button primary-button"
+          type="submit"
+          [disabled]="!newApartment.name"
+        >
+          Add Apartment
+        </button>
+      </form>
+    </div>
+    
+    <summary><h3>📋 Apartment List</h3></summary>
+  <ul class="apartment-list">
+    <li *ngFor="let apt of apartments">
+      <span>{{ apt.name }}</span>
+      <button class="btn danger" (click)="softDeleteApartment(apt.id)">🗑 Soft Delete</button>
+    </li>
+  </ul>
+  </details>
+
+  <!-- Add New Admin -->
+  <details class="card add-admin-section">
+    <summary><h3 class="card-title">Add New Apartment Admin</h3></summary>
+    <div>
+      <div class="input-group">
+        <label for="adminName">Admin Name:</label>
+        <input type="text" id="adminName" [(ngModel)]="adminName" placeholder="Enter Admin Name" required>
+      </div>
+      <div class="input-group">
+        <label for="adminPhone">Phone Number:</label>
+        <input type="tel" id="adminPhone" [(ngModel)]="adminPhone" (ngModelChange)="checkAdminDuplicate()" placeholder="Enter Phone Number" required maxlength="10">
+      </div>
+      <div class="input-group">
+        <label for="apartmentName">Apartment Name:</label>
+        <select [(ngModel)]="selectedApartmentId" required>
+          <option value="" disabled selected>Select Apartment</option>
+          <option *ngFor="let apt of apartments" [value]="apt.id">{{ apt.name }}</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label for="adminRole">Admin Role:</label>
+        <select id="adminRole" [(ngModel)]="adminRole" required>
+          <option value="admin">Admin</option>
+          <option value="manager">Manager</option>
+          <option value="super_user">Super User</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label for="flatOwnerRole">Also a Flat Owner:</label>
+        <select id="flatOwnerRole" [(ngModel)]="flatOwnerRole">
+          <option [ngValue]="null">No</option>
+          <option value="resident">Resident</option>
+          <option value="tenant">Tenant</option>
+          <option value="owner_admin">Owner Admin</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label for="flatNumber">Flat Number (Optional):</label>
+        <input type="text" id="flatNumber" [(ngModel)]="adminFlatNumber" placeholder="Enter Flat Number (Optional)">
+      </div>
+      <button (click)="addAdmin()" class="button primary-button" [disabled]="phoneNumberExists">Add Admin</button>
+    </div>
+  </details>
+
+  <p *ngIf="phoneNumberExists" class="error-text">
+    🚫 This phone number is already assigned as an admin for this apartment.
+  </p>
+
+  <!-- Registered Admins -->
+  <details class="card registered-admins-section">
+    <summary><h3 class="card-title">📋 Registered Admins</h3></summary>
+    <ul class="admin-list">
+      <li *ngFor="let admin of registeredAdmins" class="admin-list-item">
+        <div class="admin-info">
+          <strong class="admin-name">{{ admin.adminName }}</strong>
+          <span class="admin-apartment">({{ admin.apartmentName }})</span>
+          <span class="admin-phone">{{ admin.phoneNumber }}</span>
+          <span class="admin-creation-date">- {{ admin.creationDate | date: 'medium' }}</span>
+          <span class="admin-roles" *ngIf="admin.adminRole || admin.flatOwnerRole">
+            <span *ngIf="admin.adminRole">[{{ admin.adminRole }} Admin]</span>
+            <span *ngIf="admin.adminRole && admin.flatOwnerRole">, </span>
+            <span *ngIf="admin.flatOwnerRole">[{{ admin.flatOwnerRole }} Flat Owner]</span>
+          </span>
+        </div>
+        <div class="admin-actions">
+          <button (click)="editAdmin(admin)" class="button primary-button">Edit</button>
+          <button (click)="removeAdmin(admin)" class="button danger-button">Remove</button>
+          <button class="btn btn-sm btn-danger" *ngIf="!admin.locked" (click)="lockApartment(admin.apartmentId)">🔒 Lock</button>
+          <button class="btn btn-sm btn-success" *ngIf="admin.locked" (click)="unlockApartment(admin.apartmentId)">🔓 Unlock</button>
+        </div>
+      </li>
+    </ul>
+    <p *ngIf="registeredAdmins.length === 0" class="empty-message">No apartment admins registered yet.</p>
+  </details>
+
+  <!-- Requests from Admins -->
+  <details class="card">
+    <summary><h3>📨 Incoming Requests from Admins</h3></summary>
+    <div *ngFor="let request of adminRequests" class="request-card">
+      <p><strong>{{ request.phoneNumber }}</strong>:</p>
+      <p>Status: <strong>{{ request.status }}</strong>
+        <span *ngIf="request.status === 'Pending'">⏳ Pending</span>
+        <span *ngIf="request.status === 'Resolved'">✅ Resolved</span>
+      </p>
+      <textarea *ngIf="true" [(ngModel)]="request.responseMessage" placeholder="Write a response to the admin (optional)" class="textarea mb-2"></textarea>
+      <button class="btn primary" (click)="resolveRequest(request)">Mark as Resolved</button>
+      <button class="btn danger" (click)="deleteRequest(request.id)">🗑️ Delete</button>
+    </div>
+  </details>
+
+  <!-- Admin Queries -->
+  <details class="card">
+    <summary><h3>🛠 Admin Queries</h3></summary>
+    <div *ngFor="let apartment of objectKeys(groupedQueries)">
+      <h4 (click)="toggleApartment(apartment)" style="cursor: pointer;">
+        🏢 {{ apartment }}
+        <span *ngIf="!isCollapsed(apartment)">🔽</span>
+        <span *ngIf="isCollapsed(apartment)">▶</span>
+      </h4>
+      <ul *ngIf="!isCollapsed(apartment)">
+        <li *ngFor="let q of groupedQueries[apartment]" [ngClass]="{ 'pending-query': q.status === 'Pending' }">
+          <p><strong>{{ q.adminPhone }}</strong>: {{ q.message }}</p>
+          <p>Status: <strong>{{ q.status }}</strong>
+            <span *ngIf="q.status === 'Pending'" class="status-badge">⏳ Pending</span>
+            <span *ngIf="q.status === 'Resolved'" class="status-badge resolved">✔ Resolved</span>
+          </p>
+          <button *ngIf="q.status === 'Pending'" (click)="resolveQuery(q.id!)">Mark as Resolved</button>
+          <button class="delete-btn" (click)="deleteQuery(q.id!)">🗑 Delete</button>
+        </li>
+      </ul>
+    </div>
+  </details>
+
+  <!-- Interested Users -->
+  <details class="card">
+    <summary><h3 class="card-title">👀 Interested Users</h3></summary>
+    <div class="card mt-4">
+      <table class="user-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Phone</th>
+            <th>Message</th>
+            <th>Date</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let req of contactRequests">
+            <td>{{ req.name }}</td>
+            <td>{{ req.phone }}</td>
+            <td>{{ req.message }}</td>
+            <td>{{ req.timestamp?.toDate() | date: 'medium' }}</td>
+            <td><button (click)="deleteRequest(req)">🗑️ Delete</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </details>
+
+  <!-- Admin Approval Section -->
+  <details class="card">
+    <summary><h2>🚦 Pending Admin Approvals</h2></summary>
+    <div *ngIf="pendingAdmins.length === 0" class="no-pending">✅ No pending requests</div>
+  
+    <!-- Wrap table with scrollable div -->
+    <div class="table-responsive-scroll">
+      <table *ngIf="pendingAdmins.length > 0" class="table table-bordered mt-3 table-striped">
+        <thead class="table-light">
+          <tr>
+            <th>Apartment</th>
+            <th>Admin Name</th>
+            <th>Phone</th>
+            <th>Email</th>
+            <th>Flat No.</th>
+            <th>Requested On</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let admin of pendingAdmins">
+            <td>{{ admin.apartmentName }}</td>
+            <td>{{ admin.adminName }}</td>
+            <td>{{ admin.phoneNumber }}</td>
+            <td>{{ admin.email || '—' }}</td>
+            <td>{{ admin.flatNumber }}</td>
+            <td>{{ admin.creationDate | date: 'medium' }}</td>
+            <td>
+              <button class="btn btn-success btn-sm" (click)="approveAdmin(admin.apartmentId, admin.adminId)">✅ Approve</button>
+            </td>
+              <td>
+                <button class="btn btn-success btn-sm" (click)="rejectAdmin(admin.apartmentId, admin.adminId,'')">✅ Reject</button>
+              </td>
+           
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </details>
+  
+</div>

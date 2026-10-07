@@ -1,0 +1,30 @@
+.charges-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    padding: 20px;
+    background-color: #f8f5ff; /* light purple */
+  }
+  
+  .charge-card {
+    background: white;
+    border-radius: 12px;
+    padding: 15px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease-in-out;
+  }
+  
+  .charge-card:hover {
+    transform: translateY(-5px);
+  }
+  
+  .charge-card h3 {
+    color: #4a148c; /* deep purple */
+    margin-bottom: 10px;
+  }
+  
+  .charge-card p {
+    margin: 4px 0;
+    font-size: 14px;
+  }
+  

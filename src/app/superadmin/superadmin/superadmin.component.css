@@ -1,0 +1,254 @@
+/* Global card styling for <details> */
+details.card,
+details.card-section,
+details.superadmin-approval-container {
+  border-radius: 12px;
+  margin: 20px 0;
+  background: #ffffff;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: box-shadow 0.3s ease;
+  border: 1px solid #e0e0e0;
+}
+
+/* Summary header styles */
+details > summary {
+  padding: 16px 24px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  background: linear-gradient(to right, #e3f2fd, #f1f8e9);
+  color: #2b2b2b;
+  border-bottom: 1px solid #ddd;
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: background 0.3s ease;
+}
+
+details > summary:hover {
+  background: linear-gradient(to right, #d0e8ff, #e9f5dc);
+}
+
+/* Remove native marker */
+details > summary::-webkit-details-marker {
+  display: none;
+}
+
+/* Animate content expansion */
+details[open] {
+  animation: fadeInDown 0.3s ease;
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Padding for inner content */
+details > *:not(summary) {
+  padding: 20px 24px;
+}
+
+/* Optional: Admin card enhancements */
+.request-card,
+.admin-list-item {
+  background: #f9f9f9;
+  padding: 16px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+/* Highlight for pending/resolved badges */
+.status-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  margin-left: 6px;
+}
+
+.status-badge.resolved {
+  background-color: #e0f7e9;
+  color: #2e7d32;
+}
+
+.status-badge.pending {
+  background-color: #fff3e0;
+  color: #ef6c00;
+}
+
+.apartment-list {
+  list-style: none;
+  padding: 0;
+}
+.apartment-list li {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+.btn.danger {
+  background: #e53935;
+  color: #fff;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.btn.danger:hover {
+  background: #c62828;
+}
+.table-responsive-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.button {
+  padding: 8px 14px;
+  font-size: 14px;
+  border: none;
+  border-radius: 6px;
+  margin-right: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.primary-button {
+  background-color: #007bff;
+  color: white;
+}
+
+.primary-button:hover {
+  background-color: #0056b3;
+}
+
+.danger-button {
+  background-color: #dc3545;
+  color: white;
+}
+
+.danger-button:hover {
+  background-color: #a71d2a;
+}
+
+.btn-sm {
+  padding: 6px 10px;
+  font-size: 13px;
+  border-radius: 5px;
+  margin-right: 6px;
+}
+
+.btn-danger {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.btn-danger:hover {
+  background-color: #c0392b;
+}
+
+.btn-success {
+  background-color: #28a745;
+  color: white;
+}
+
+.btn-success:hover {
+  background-color: #1e7e34;
+}
+.add-admin-section {
+  padding: 16px;
+  border-radius: 8px;
+  background: #fff;
+  margin-top: 16px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 14px;
+}
+
+.input-group label {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.input-group input,
+.input-group select {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  width: 100%;
+  max-width: 400px;
+}
+
+
+.button.primary-button {
+  padding: 10px 20px;
+  font-size: 15px;
+  font-weight: 600;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.button.primary-button:disabled {
+  background-color: #999;
+  cursor: not-allowed;
+}
+.add-apartment-form {
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.form-group input {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+button.button.primary-button {
+  background-color: #007bff;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button.button.primary-button:hover:not(:disabled) {
+  background-color: #0056b3;
+}
+
+button.button.primary-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}

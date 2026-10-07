@@ -1,0 +1,46 @@
+<div class="marketplace-container">
+    <!-- <h2 class="marketplace-title">🛍️ Apt3M Marketplace</h2> -->
+  
+    <!-- <div class="marketplace-wrapper">
+      
+        <p *ngIf="!apartmentId">No apartment selected.</p>
+        <ul>
+          <li *ngFor="let item of listings">{{ item.title }} - ₹{{ item.price }}</li>
+        </ul>
+      </div> -->
+      
+    <!-- Listing Form -->
+    <form (ngSubmit)="postItem()" class="listing-form">
+      <div class="form-grid">
+        <input [(ngModel)]="newItem.title" name="title" type="text" placeholder="Item Name" required />
+        <input [(ngModel)]="newItem.price" name="price" type="number" placeholder="Price (₹)" required />
+        <select [(ngModel)]="newItem.category" name="category" required>
+          <option value="">-- Category --</option>
+          <option value="furniture">Furniture</option>
+          <option value="electronics">Electronics</option>
+          <option value="books">Books</option>
+          <option value="others">Others</option>
+        </select>
+        <input [(ngModel)]="newItem.imageUrl" name="imageUrl" type="url" placeholder="Image URL (optional)" />
+      </div>
+      <textarea [(ngModel)]="newItem.description" name="description" rows="2" placeholder="Description"></textarea>
+      <button type="submit" class="btn btn-post">📤 Post Item</button>
+    </form>
+  
+    <!-- Listings Grid -->
+    <div *ngFor="let item of listings" class="marketplace-card">
+        <h3 class="item-title">{{ item.title }}</h3>
+        <p class="item-category">📁 {{ item.category || 'others' }}</p>
+        <p class="item-price">₹{{ item.price }}</p>
+        <p class="item-description">{{ item.description }}</p>
+        <p class="item-contact">📞 {{ item.contact }}</p>
+        <p class="item-postedby">👤 Posted By: {{ item.name || 'Anonymous' }}</p>
+      
+        <div class="item-actions"  *ngIf="item.postedBy === postedBy" >
+          <button class="btn btn-sm btn-success" (click)="markAsSold(item.id!)">✅ Sold</button>
+          <button class="btn btn-sm btn-danger" (click)="deleteListing(item.id!)">🗑️ Delete</button>
+          <button class="btn btn-sm btn-primary" (click)="openChat(item)">💬 Chat</button>
+        </div>
+      </div>
+      
+  </div>

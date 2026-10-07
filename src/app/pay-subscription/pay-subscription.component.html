@@ -1,0 +1,10 @@
+<!-- pay-subscription.component.html -->
+<div class="plan-card" *ngIf="selectedPlan">
+    <h3>{{ selectedPlan.name | titlecase }} Plan</h3>
+    <p class="plan-description">{{ selectedPlan.description }}</p>
+    <p class="plan-price">₹{{ selectedPlan.price }} / month</p>
+    <button (click)="startPayment()" class="btn-pay">
+      Pay & Subscribe
+    </button>
+  </div>
+  

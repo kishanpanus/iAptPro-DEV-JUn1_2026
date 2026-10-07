@@ -1,0 +1,59 @@
+.flatowner-container {
+    font-family: Arial, sans-serif;
+  }
+  
+  header {
+    background-color: #4caf50;
+    color: white;
+    padding: 15px;
+    text-align: center;
+    position: relative;
+  }
+  
+  header button {
+    position: absolute;
+    right: 20px;
+    top: 15px;
+    padding: 5px 10px;
+    background-color: #ffffff;
+    color: #4caf50;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .content {
+    padding: 20px;
+  }
+  
+  .owner-info {
+    margin-bottom: 20px;
+    font-size: 16px;
+    color: #333;
+  }
+  
+  h2 {
+    margin-top: 20px;
+    color: #333;
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+  
+  table, th, td {
+    border: 1px solid #ccc;
+  }
+  
+  th, td {
+    padding: 10px;
+    text-align: left;
+  }
+  
+  ul {
+    list-style: disc;
+    padding-left: 20px;
+  }
+  

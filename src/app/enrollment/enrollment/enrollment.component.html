@@ -1,0 +1,170 @@
+<div class="enrollment-container">
+    <!-- <div class="logo-section">
+      <img src="" alt="Apt 3M Logo" class="logo" />
+      <p class="tagline">Meet, Manage, Maintain</p>
+    </div> -->
+  
+    <div class="enrollment-card">
+      <div class="card-header">
+        <i class="fas fa-user-plus login-icon"></i>
+        <h3>Enroll Your Apartment or Register</h3>
+      </div>
+  
+      <div class="card-body">
+        <div class="enrollment-type-selection">
+          <button
+            class="btn"
+            [class.btn-primary]="enrollmentType === 'apartment_admin'"
+            [class.btn-outline-primary]="enrollmentType !== 'apartment_admin'"
+            (click)="enrollmentType = 'apartment_admin'"
+          >
+            Enroll Apartment (I'm an Admin)
+          </button>
+          <!-- <button
+            class="btn ml-3"
+            [class.btn-primary]="enrollmentType === 'resident'"
+            [class.btn-outline-primary]="enrollmentType !== 'resident'"
+            (click)="enrollmentType = 'resident'"
+          >
+            Register as Resident
+          </button> -->
+        </div>
+  
+        <div *ngIf="enrollmentType === 'apartment_admin'" class="form-section mt-4">
+          <h4>Apartment Association Details</h4>
+          <div class="form-group">
+            <label for="apartmentName">Apartment Name</label>
+            <input type="text" id="apartmentName" class="form-control" [(ngModel)]="newApartment.name" required />
+          </div>
+          <div class="form-group">
+            <label for="flatCount">Number of Flats</label>
+            <input type="number" id="flatCount" class="form-control" [(ngModel)]="newApartment.flatCount" required />
+          </div>
+          <div class="form-group">
+            <label for="address">Address</label>
+            <input type="text" id="address" class="form-control" [(ngModel)]="newApartment.address.street" placeholder="Street Address" required />
+            <input type="text" class="form-control mt-2" [(ngModel)]="newApartment.address.city" placeholder="City" required />
+            <input type="text" class="form-control mt-2" [(ngModel)]="newApartment.address.state" placeholder="State" required />
+            <input type="text" class="form-control mt-2" [(ngModel)]="newApartment.address.pincode" placeholder="Pincode" required />
+          </div>
+  
+          <h4>Your (Admin) Details</h4>
+          <div class="form-group">
+            <label for="adminName">Your Name</label>
+            <input type="text" id="adminName" class="form-control" [(ngModel)]="newAdmin.adminName" required />
+          </div>
+          <div class="form-group">
+            <label for="adminPhoneNumber">Phone Number</label>
+            <input type="tel" id="adminPhoneNumber" class="form-control" [(ngModel)]="newAdmin.phoneNumber" required />
+          </div>
+          <div class="form-group">
+            <label for="adminFlatNumber">Flat Number (Optional)</label>
+            <input
+              type="text"
+              id="adminFlatNumber"
+              class="form-control"
+              [(ngModel)]="newAdmin.flatNumber"
+              placeholder="e.g., 101, G1, A-202"
+            />
+          </div>
+          <div class="form-group">
+            <label for="adminEmail">Email (Optional)</label>
+            <input type="email" id="adminEmail" class="form-control" [(ngModel)]="newAdmin.email" />
+          </div>
+        </div>
+  
+        <div *ngIf="enrollmentType === 'resident'" class="form-section mt-4">
+          <h4>Resident Registration</h4>
+          <p class="text-muted">You will be linked to an existing apartment. Your admin will approve your registration.</p>
+          <div class="form-group">
+            <label for="apartmentCode">Apartment Code / Name</label>
+            <input type="text" id="apartmentCode" class="form-control" [(ngModel)]="newResident.apartmentIdentifier" placeholder="e.g., Jaya Castle or specific code" required />
+            </div>
+          <div class="form-group">
+            <label for="residentName">Your Name</label>
+            <input type="text" id="residentName" class="form-control" [(ngModel)]="newResident.name" required />
+          </div>
+          <div class="form-group">
+            <label for="flatNumber">Flat Number</label>
+            <input type="text" id="flatNumber" class="form-control" [(ngModel)]="newResident.flatNumber" required />
+          </div>
+          <div class="form-group">
+            <label for="residentPhoneNumber">Phone Number</label>
+            <input type="tel" id="residentPhoneNumber" class="form-control" [(ngModel)]="newResident.phoneNumber" required />
+          </div>
+          <div class="form-group">
+            <label for="residentEmail">Email (Optional)</label>
+            <input type="email" id="residentEmail" class="form-control" [(ngModel)]="newResident.email" />
+          </div>
+        </div>
+  
+      <div *ngIf="enrollmentType === 'apartment_admin'" class="membership-section mt-4">
+  <h4>Choose Your Plan</h4>
+
+  <div class="plan-options">
+    <label class="plan-card" [class.selected]="selectedPlan?.name === 'trial'">
+      <input
+        type="radio"
+        name="plan"
+        value="trial"
+        [(ngModel)]="selectedPlan.name"
+      />
+      <h5>30 Days Free Trial</h5>
+      <p>Experience all Premium features for 30 days. No credit card required.</p>
+      <span class="price">FREE</span>
+    </label>
+
+    <label class="plan-card" [class.selected]="selectedPlan?.name === 'standard'">
+      <input
+        type="radio"
+        name="plan"
+        value="standard"
+        [(ngModel)]="selectedPlan.name"
+      />
+      <h5>Standard Plan</h5>
+      <p>Essential features for efficient apartment management.</p>
+      <span class="price">₹999/month</span>
+
+      <ul class="features">
+        <li>Up to 50 flats</li>
+        <li>Basic water bill management</li>
+        <li>Announcement board</li>
+        <li>Basic support</li>
+      </ul>
+    </label>
+
+    <label class="plan-card" [class.selected]="selectedPlan?.name === 'premium'">
+      <input
+        type="radio"
+        name="plan"
+        value="premium"
+        [(ngModel)]="selectedPlan.name"
+      />
+      <h5>Premium Plan</h5>
+      <p>All-inclusive features for seamless complex management.</p>
+      <span class="price">₹1999/month</span>
+
+      <ul class="features">
+        <li>Unlimited flats</li>
+        <li>Advanced water bill management</li>
+        <li>Online payments integration</li>
+        <li>Complaint management</li>
+        <li>Premium support</li>
+      </ul>
+    </label>
+  </div>
+</div>
+  
+       <div class="action-buttons">
+  <button class="btn btn-primary" (click)="submitEnrollment()">
+    {{ enrollmentType === 'apartment_admin' ? 'Enroll Apartment' : 'Register' }}
+  </button>
+
+  <button class="btn btn-secondary" (click)="cancelEnrollment()">
+    Back to Login
+  </button>
+</div>
+      </div>
+    </div>
+  </div>
+  
