@@ -4,6 +4,7 @@ import axios from "axios";
 import corsLib from "cors";
 import * as admin from "firebase-admin";
 import { onRequest } from "firebase-functions/https";
+import nodemailer from "nodemailer";
 
 const cors = corsLib({
   origin: [
@@ -157,6 +158,191 @@ export const verifyOtp = onRequest(
   }
 );
 
+// ==========================================================
+// CONTACT FORM EMAIL
+// POST { name, email, message }
+// ==========================================================
+
+export const sendContactEmail = onRequest(
+  {
+    region: "us-central1",
+    secrets: ["ZOHO_EMAIL", "ZOHO_APP_PASSWORD"]
+  },
+  (req, res) => {
+
+    cors(req, res, async () => {
+
+      try {
+
+        // Only allow POST
+        if (req.method !== "POST") {
+          res.status(405).json({
+            error: "Method Not Allowed"
+          });
+          return;
+        }
+
+        const { name, email, message } = (req.body ?? {}) as {
+          name?: string;
+          email?: string;
+          message?: string;
+        };
+
+
+        // Validate required fields
+        if (!name || !email || !message) {
+          res.status(400).json({
+            error: "Name, email and message are required."
+          });
+          return;
+        }
+
+
+        // Basic email validation
+        const emailPattern =
+          /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (!emailPattern.test(email)) {
+          res.status(400).json({
+            error: "Invalid email address."
+          });
+          return;
+        }
+
+
+        const zohoEmail = process.env.ZOHO_EMAIL;
+        const zohoPassword =
+          process.env.ZOHO_APP_PASSWORD;
+
+
+        if (!zohoEmail || !zohoPassword) {
+
+          logger.error(
+            "Zoho email secrets are missing."
+          );
+
+          res.status(500).json({
+            error: "Email configuration missing."
+          });
+
+          return;
+        }
+
+
+        // Zoho SMTP
+     const transporter = nodemailer.createTransport({
+  host: "smtp.zoho.com",
+  port: 465,
+  secure: true,
+  auth: {
+    user: process.env.ZOHO_EMAIL, 
+    pass: process.env.ZOHO_APP_PASSWORD
+  }
+});
+
+
+        // Send email
+await transporter.sendMail({
+  from: `"Apt3M Website" <admin@apt3m.com>`,
+  to: "support@apt3m.com",
+  replyTo: email,
+  subject: `New Apt3M Contact Message - ${name}`,
+  text: `
+Name: ${name}
+Email: ${email}
+
+Message:
+${message}
+
+          `,
+
+          html: `
+            <div style="font-family:Arial,sans-serif">
+
+              <h2>
+                New Apt3M Contact Message
+              </h2>
+
+              <p>
+                A new message was submitted from
+                the Apt3M website.
+              </p>
+
+              <hr>
+
+              <p>
+                <strong>Name:</strong>
+                ${escapeHtml(name)}
+              </p>
+
+              <p>
+                <strong>Email:</strong>
+                ${escapeHtml(email)}
+              </p>
+
+              <p>
+                <strong>Message:</strong>
+              </p>
+
+              <p>
+                ${escapeHtml(message)
+                  .replace(/\n/g, "<br>")}
+              </p>
+
+              <hr>
+
+              <p style="font-size:12px;color:#777">
+                Sent from Apt3M Contact Form
+              </p>
+
+            </div>
+          `
+        });
+
+
+        logger.info(
+          "Contact email sent successfully",
+          {
+            senderEmail: email
+          }
+        );
+
+
+        res.status(200).json({
+          success: true,
+          message: "Message sent successfully."
+        });
+
+        return;
+
+      } catch (error: any) {
+
+ logger.error(
+    `sendContactEmail FAILED: MESSAGE=${error?.message} | CODE=${error?.code} | RESPONSE=${error?.response}`
+  );
+
+  res.status(500).json({
+    success: false,
+    error: error?.message || "Unable to send your message.",
+    code: error?.code || "",
+    response: error?.response || ""
+  });
+
+  return;
+      }
+
+    });
+
+  }
+);
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
 export const createCashfreeOrder = functions.https.onRequest(
   {
     secrets: ["CASHFREE_CLIENT_ID", "CASHFREE_CLIENT_SECRET"]
@@ -165,8 +351,7 @@ export const createCashfreeOrder = functions.https.onRequest(
     cors(req, res, async () => {
       try {
         const { orderId, orderAmount, customerName, customerEmail, customerPhone } = req.body;
-        console.log("Client ID:", process.env.CASHFREE_CLIENT_ID);
-        console.log("Client ID:", process.env.CASHFREE_CLIENT_SECRET);
+       
         const response = await axios.post(
           "https://sandbox.cashfree.com/pg/orders",
           {

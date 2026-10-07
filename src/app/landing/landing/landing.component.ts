@@ -2,11 +2,13 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, ElementRef, HostListener } from '@angular/core';
 import { Router } from '@angular/router';
 import { EnrollmentComponent } from '../../enrollment/enrollment/enrollment.component';
+import { HttpClient } from '@angular/common/http';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-landing',
   standalone: true,
-  imports: [CommonModule,EnrollmentComponent],
+  imports: [CommonModule,EnrollmentComponent, FormsModule],
   templateUrl: './landing.component.html',
   styleUrl: './landing.component.css'
 })
@@ -15,6 +17,16 @@ export class LandingComponent {
   showEnrollmentModal = false;
   footerModalType: string | null = null;
   footerModalTitle = '';
+  contact = {
+  name: '',
+  email: '',
+  message: ''
+};
+
+sendingMessage = false;
+contactSuccess = false;
+contactError = false;
+
   faqs = [
     {
       icon: '🔐',
@@ -36,7 +48,7 @@ export class LandingComponent {
     }
   ];
   
-  constructor(private router: Router,private elementRef: ElementRef,private cdr: ChangeDetectorRef) {}
+  constructor(private router: Router,private elementRef: ElementRef,private cdr: ChangeDetectorRef, private http: HttpClient) {}
 
   toggleMenu() {
     this.isMenuOpen = !this.isMenuOpen;
@@ -89,7 +101,45 @@ openFooterModal(type: 'privacy' | 'terms') {
 closeFooterModal() {
   this.footerModalType = null;
 }
+sendContactMessage(): void {
 
+  this.sendingMessage = true;
+  this.contactSuccess = false;
+  this.contactError = false;
+
+  const payload = {
+    name: this.contact.name,
+    email: this.contact.email,
+    message: this.contact.message
+  };
+
+  this.http.post(
+    'https://sendcontactemail-n5xsrpjk7a-uc.a.run.app',
+    payload
+  ).subscribe({
+
+    next: () => {
+
+      this.sendingMessage = false;
+      this.contactSuccess = true;
+
+      this.contact = {
+        name: '',
+        email: '',
+        message: ''
+      };
+    },
+
+    error: (error) => {
+
+      console.error('Contact email error:', error);
+
+      this.sendingMessage = false;
+      this.contactError = true;
+    }
+
+  });
+}
 scrollToContact() {
   const contactEl = document.getElementById('contact');
   contactEl?.scrollIntoView({ behavior: 'smooth' });

@@ -1,287 +1,1333 @@
+/* ==========================================================
+   APT3M ENROLLMENT PAGE
+========================================================== */
+
+:host {
+  display: block;
+  width: 100%;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: #f1f5fb;
+  box-sizing: border-box;
+}
+
+:host *,
+:host *::before,
+:host *::after {
+  box-sizing: border-box;
+}
+
+
+/* ==========================================================
+   PAGE WRAPPER
+========================================================== */
+
+.enrollment-page-wrapper {
+  width: 100%;
+  min-height: 100vh;
+
+  margin: 0;
+  padding: 30px 15px 60px;
+
+  background: #f1f5fb;
+
+  border: 0;
+  outline: 0;
+}
+
+
+/* ==========================================================
+   MAIN CONTAINER
+========================================================== */
+
 .enrollment-container {
-  max-width: 800px;
-  margin: auto;
-  padding: 20px;
+  width: 100%;
+  max-width: 900px;
+
+  margin: 0 auto;
+  padding: 0;
+
+  background: #ffffff;
+
+  border: 0;
+  outline: 0;
+
+  border-radius: 14px;
+
+  overflow: hidden;
+
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
 }
 
-.enrollment-card {
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  padding: 25px;
-  position: relative;
-}
 
-.card-header {
+/* ==========================================================
+   BRAND HEADER
+========================================================== */
+
+.brand-header {
+  width: 100%;
+  min-height: 110px;
+
+  margin: 0;
+  padding: 15px 35px;
+
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 1rem;
+
+  background: #ffffff;
+
+  border: 0 !important;
+  outline: 0;
+
+  box-shadow: none !important;
 }
 
-.modal-actions {
-  text-align: right;
-  margin-bottom: 1rem;
+
+/* ==========================================================
+   LOGO
+========================================================== */
+
+.brand-logo {
+  display: flex;
+  align-items: center;
+
+  margin: 0;
+  padding: 0;
+
+  border: 0;
+  outline: 0;
+
+  cursor: pointer;
+}
+
+.brand-logo img {
+  display: block;
+
+  width: 150px;
+  max-width: 100%;
+  height: auto;
+
+  margin: 0;
+  padding: 0;
+
+  border: 0;
+  outline: 0;
+
+  object-fit: contain;
+}
+
+
+/* ==========================================================
+   SIGN IN BUTTON
+========================================================== */
+
+.header-login-btn {
+  padding: 9px 19px;
+
+  color: #07328f;
+  background: #ffffff;
+
+  border: 1px solid #07328f;
+  border-radius: 7px;
+
+  cursor: pointer;
+
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+
+  transition:
+    color 0.2s ease,
+    background 0.2s ease;
+}
+
+.header-login-btn:hover {
+  color: #ffffff;
+  background: #07328f;
+}
+
+
+/* ==========================================================
+   ENROLLMENT HERO
+========================================================== */
+
+.enrollment-hero {
+  width: 100%;
+
+  margin: 0;
+  padding: 32px 20px;
+
+  text-align: center;
+
+  color: #ffffff;
+  background: #07328f;
+
+  border: 0;
+  outline: 0;
+}
+
+.hero-icon {
+  width: 54px;
+  height: 54px;
+
+  margin: 0 auto 13px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #ffffff;
+
+  background: rgba(255, 255, 255, 0.14);
+
+  border-radius: 50%;
+
+  font-size: 22px;
+}
+
+.enrollment-hero h1 {
+  margin: 0;
+
+  color: #ffffff;
+
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.enrollment-hero p {
+  max-width: 560px;
+
+  margin: 9px auto 0;
+
+  color: #dce7ff;
+
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+
+/* ==========================================================
+   BODY
+========================================================== */
+
+.enrollment-body {
+  width: 100%;
+
+  margin: 0;
+  padding: 35px;
+
+  background: #ffffff;
+}
+
+
+/* ==========================================================
+   FORM / MEMBERSHIP SECTIONS
+========================================================== */
+
+.form-section,
+.membership-section {
+  width: 100%;
+  margin: 0 0 40px;
+}
+
+
+/* ==========================================================
+   SECTION HEADING
+========================================================== */
+
+.section-heading {
+  display: flex;
+  align-items: flex-start;
+
+  gap: 13px;
+
+  margin: 0 0 23px;
+
+  padding: 0 0 14px;
+
+  border: 0;
+  border-bottom: 1px solid #e7eaf0;
+}
+
+.section-icon {
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #07328f;
+  background: #edf4ff;
+
+  border-radius: 9px;
+
+  font-size: 18px;
+}
+
+.section-heading h2 {
+  margin: 0;
+
+  color: #07328f;
+
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.section-heading p {
+  margin: 4px 0 0;
+
+  color: #747474;
+
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+
+/* ==========================================================
+   FORM
+========================================================== */
+
+.form-row {
+  display: flex;
+  gap: 18px;
+}
+
+.form-row .form-group {
+  flex: 1;
 }
 
 .form-group {
-  margin-bottom: 1rem;
-}
-
-.form-section h4 {
-  margin-top: 20px;
-  font-weight: 600;
-  color: #333;
-}
-
-.pricing-cards {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 15px;
-  margin: 1rem 0;
-}
-
-.pricing-card {
-  flex: 1 1 45%;
-  border: 2px solid #ddd;
-  border-radius: 10px;
-  padding: 15px;
-  position: relative;
-  transition: border-color 0.3s ease;
-}
-
-.pricing-card.selected {
-  border-color: #0047ab;
-  background: #f5f9ff;
-}
-
-.pricing-card input[type="radio"] {
-  position: absolute;
-  opacity: 0;
-}
-
-.pricing-card label {
-  display: block;
-  cursor: pointer;
-}
-
-.pricing-card h3 {
-  margin-top: 0;
-  color: #0047ab;
-}
-
-.pricing-card h2 {
-  margin: 10px 0;
-  font-size: 1.3rem;
-}
-
-.pricing-card ul {
-  padding-left: 1rem;
-  list-style-type: none;
-}
-
-.pricing-card ul li::before {
-  content: '✔ ';
-  color: green;
-  margin-right: 5px;
-}
-
-.form-check {
-  display: flex;
-  align-items: center;
-  font-size: 0.95rem;
-}
-
-.form-check-label a {
-  color: #0047ab;
-  text-decoration: underline;
-  cursor: pointer;
-}
-
-.button-group {
-  margin-top: 1.2rem;
-}
-
-.btn {
-  padding: 10px 18px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 500;
-}
-
-.btn-primary {
-  background: #0047ab;
-  color: #fff;
-}
-
-.btn-secondary {
-  background: #e0e0e0;
-  color: #333;
-}
-
-.payment-fade {
-  margin-top: 1.5rem;
-}
-
-.terms-modal-backdrop {
-  position: fixed;
-  top: 0;
-  left: 0;
   width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.4);
-  z-index: 99;
+  margin: 0 0 19px;
 }
 
-.terms-modal {
-  position: fixed;
-  top: 10%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 90%;
-  max-width: 500px;
-  background: #fff;
-  z-index: 100;
-  border-radius: 10px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+.form-group label {
+  display: block;
+
+  margin: 0 0 7px;
+
+  color: #333333;
+
+  font-size: 14px;
+  font-weight: 600;
 }
 
-.terms-modal-content {
-  padding: 20px;
+.required {
+  color: #dc3545;
 }
 
-.terms-modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.optional {
+  color: #8a8a8a;
+
+  font-size: 12px;
+  font-weight: 400;
 }
 
-.terms-modal-header h5 {
+
+/* ==========================================================
+   INPUTS
+========================================================== */
+
+.form-control {
+  display: block;
+
+  width: 100%;
+  height: 47px;
+
   margin: 0;
-  font-size: 1.2rem;
+  padding: 10px 13px;
+
+  color: #222222;
+  background: #ffffff;
+
+  border: 1px solid #ced4da;
+  border-radius: 7px;
+
+  outline: none;
+
+  font-family: inherit;
+  font-size: 14px;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
-.terms-close-btn {
-  background: transparent;
-  border: none;
-  font-size: 1.3rem;
+.form-control:hover {
+  border-color: #aeb8c5;
+}
+
+.form-control:focus {
+  border-color: #276bc4;
+
+  box-shadow: 0 0 0 3px rgba(39, 107, 196, 0.12);
+}
+
+.form-control::placeholder {
+  color: #a1a7ae;
+}
+
+select.form-control {
   cursor: pointer;
+  appearance: auto;
 }
 
-.terms-modal-body p {
-  font-size: 0.95rem;
-  margin: 8px 0;
+
+/* ==========================================================
+   PLAN LOADING
+========================================================== */
+
+.plans-loading {
+  width: 100%;
+
+  padding: 25px;
+
+  text-align: center;
+
+  color: #6c757d;
+  background: #f8f9fa;
+
+  border-radius: 8px;
 }
 
-.terms-modal-footer {
-  text-align: right;
-  margin-top: 15px;
-}
 
-/* Responsive */
-@media (max-width: 768px) {
-  .pricing-cards {
-    flex-direction: column;
-  }
+/* ==========================================================
+   PLAN GRID
+========================================================== */
 
-  .pricing-card {
-    flex: 1 1 100%;
-  }
-
-  .btn {
-    width: 100%;
-  }
-}
 .plan-options {
-  display: flex;
-  gap: 24px;
-  justify-content: center;
-  align-items: stretch;
-  flex-wrap: wrap;
+  display: grid;
+
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  gap: 18px;
+
+  margin: 27px 0 0;
 }
+
+
+/* ==========================================================
+   PLAN CARD
+========================================================== */
 
 .plan-card {
-  width: 300px;
-  min-height: 360px;
-  padding: 28px 24px;
-  border-radius: 16px;
-  background: #fff;
-  border: 2px solid #e5e7eb;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-  text-align: center;
+  position: relative;
+
+  display: block;
+
+  width: 100%;
+  min-height: 315px;
+
+  margin: 0;
+  padding: 24px 20px;
+
+  color: #111111;
+  background: #ffffff;
+
+  border: 2px solid #dedede;
+  border-radius: 11px;
+
   cursor: pointer;
-  transition: all 0.25s ease;
+
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
 }
 
 .plan-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+  border-color: #5c8fd0;
+
+  transform: translateY(-2px);
+
+  box-shadow: 0 7px 20px rgba(0, 0, 0, 0.07);
 }
 
 .plan-card.selected {
-  border-color: #0d6efd;
-  background: #f0f7ff;
+  border-color: #0759ba;
+
+  background: #f1f6ff;
+
+  box-shadow: 0 6px 18px rgba(7, 89, 186, 0.12);
 }
 
-.plan-card input[type="radio"] {
-  margin-bottom: 14px;
+.plan-card.trial-card.selected {
+  border-color: #0759ba;
+
+  background: linear-gradient(
+    180deg,
+    #f1f7ff 0%,
+    #ffffff 100%
+  );
 }
 
-.plan-card h5 {
+
+/* ==========================================================
+   PLAN RADIO
+========================================================== */
+
+.plan-radio {
+  position: absolute;
+
+  top: 21px;
+  right: 20px;
+
+  width: 19px;
+  height: 19px;
+
+  margin: 0;
+
+  cursor: pointer;
+
+  accent-color: #0759ba;
+}
+
+
+/* ==========================================================
+   PLAN TITLE
+========================================================== */
+
+.plan-title {
+  padding-right: 38px;
+
+  margin: 0 0 9px;
+
+  color: #064eae;
+
+  font-size: 26px;
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+
+/* ==========================================================
+   PLAN DESCRIPTION
+========================================================== */
+
+.plan-description {
+  min-height: 50px;
+
+  margin: 0;
+
+  color: #151515;
+
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.55;
+}
+
+
+/* ==========================================================
+   PLAN PRICE
+========================================================== */
+
+.plan-price {
+  margin: 18px 0;
+
+  color: #111111;
+
   font-size: 22px;
-  font-weight: 700;
-  margin-bottom: 14px;
+  font-weight: 600;
 }
 
-.plan-card p {
-  font-size: 15px;
-  line-height: 1.5;
-  margin-bottom: 18px;
+.plan-price span {
+  margin-left: 1px;
+
+  font-size: 16px;
+  font-weight: 400;
 }
 
-.price {
-  display: block;
-  font-size: 20px;
+.plan-price.free {
+  color: #198754;
+
+  font-size: 24px;
   font-weight: 700;
-  margin-bottom: 18px;
 }
+
+
+/* ==========================================================
+   PLAN FEATURES
+========================================================== */
 
 .features {
-  list-style-position: inside;
-  padding-left: 0;
   margin: 0;
-  text-align: left;
+  padding: 0;
+
+  list-style: none;
 }
 
 .features li {
-  font-size: 15px;
-  margin-bottom: 10px;
+  display: flex;
+  align-items: flex-start;
+
+  gap: 10px;
+
+  margin: 10px 0;
+
+  color: #111111;
+
+  font-size: 14px;
+  font-weight: 600;
   line-height: 1.4;
 }
 
-@media (max-width: 768px) {
-  .plan-options {
-    flex-direction: column;
-    align-items: center;
-  }
+.features li i {
+  width: 15px;
 
-  .plan-card {
-    width: 100%;
-    max-width: 340px;
-  }
+  margin-top: 3px;
+
+  color: #7156c6;
+
+  font-size: 14px;
+
+  flex-shrink: 0;
 }
+
+
+/* ==========================================================
+   RECOMMENDED BADGE
+========================================================== */
+
+.recommended-badge {
+  position: absolute;
+
+  top: -13px;
+  left: 20px;
+
+  padding: 5px 13px;
+
+  color: #ffffff;
+  background: #0759ba;
+
+  border-radius: 20px;
+
+  font-size: 10px;
+  font-weight: 700;
+
+  letter-spacing: 0.5px;
+}
+
+
+/* ==========================================================
+   TERMS
+========================================================== */
+
+.terms-section {
+  display: flex;
+  align-items: center;
+
+  gap: 9px;
+
+  margin: 25px 0 0;
+
+  padding: 16px;
+
+  color: #222222;
+  background: #f8faff;
+
+  border: 1px solid #e1e8f2;
+  border-radius: 7px;
+
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.terms-section input[type="checkbox"] {
+  width: 19px;
+  height: 19px;
+
+  margin: 0;
+
+  flex-shrink: 0;
+
+  cursor: pointer;
+
+  accent-color: #0759ba;
+}
+
+.terms-section label {
+  margin: 0;
+}
+
+.terms-section a {
+  color: #0759ba;
+
+  font-weight: 700;
+
+  text-decoration: underline;
+
+  cursor: pointer;
+}
+
+
+/* ==========================================================
+   ACTION BUTTONS
+========================================================== */
 
 .action-buttons {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-top: 30px;
+
+  gap: 10px;
+
+  margin: 10px 0 0;
 }
 
-.action-buttons .btn {
+
+/* ==========================================================
+   CONTINUE BUTTON
+========================================================== */
+
+.continue-btn {
   width: 100%;
-  height: 50px;
+  min-height: 67px;
+
+  padding: 10px 15px;
+
+  color: #ffffff;
+  background: #5689cd;
+
+  border: 0;
+  border-radius: 7px;
+
+  cursor: pointer;
+
+  font-family: inherit;
+
+  transition:
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.continue-btn:hover:not(:disabled) {
+  background: #3975c3;
+
+  box-shadow: 0 5px 14px rgba(57, 117, 195, 0.22);
+}
+
+.continue-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.continue-title {
+  display: block;
+
   font-size: 16px;
+  font-weight: 700;
+}
+
+.continue-subtitle {
+  display: block;
+
+  margin-top: 3px;
+
+  color: #ffffff;
+
+  font-size: 14px;
   font-weight: 600;
+}
+
+
+/* ==========================================================
+   BACK BUTTON
+========================================================== */
+
+.back-btn {
+  width: 100%;
+  height: 46px;
+
+  padding: 0 15px;
+
+  color: #222222;
+  background: #dddddd;
+
+  border: 0;
+  border-radius: 7px;
+
+  cursor: pointer;
+
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+
+  transition: background 0.2s ease;
+}
+
+.back-btn:hover {
+  background: #cfcfcf;
+}
+
+
+/* ==========================================================
+   LOADING SPINNER
+========================================================== */
+
+.button-spinner {
+  display: inline-block;
+
+  width: 15px;
+  height: 15px;
+
+  margin-right: 8px;
+
+  vertical-align: middle;
+
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #ffffff;
+
+  border-radius: 50%;
+
+  animation: enrollment-spin 0.7s linear infinite;
+}
+
+@keyframes enrollment-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+/* ==========================================================
+   PAYMENT SECTION
+========================================================== */
+
+.payment-section {
+  margin: 35px 0 0;
+
+  padding: 25px;
+
+  background: #f8fbff;
+
+  border: 1px solid #dce8f7;
+  border-radius: 10px;
+
+  scroll-margin-top: 20px;
+}
+
+.payment-heading {
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  margin: 0 0 20px;
+}
+
+.payment-icon {
+  width: 43px;
+  height: 43px;
+  min-width: 43px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #07328f;
+  background: #e5efff;
+
+  border-radius: 9px;
+}
+
+.payment-heading h3 {
+  margin: 0;
+
+  color: #07328f;
+
+  font-size: 19px;
+}
+
+.payment-heading p {
+  margin: 4px 0 0;
+
+  color: #666666;
+
+  font-size: 13px;
+}
+
+
+/* ==========================================================
+   SECURITY MESSAGE
+========================================================== */
+
+.security-message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  margin: 22px 0 0;
+
+  padding: 0 10px;
+
+  color: #7a7a7a;
+
+  text-align: center;
+
+  font-size: 12px;
+}
+
+.security-message i {
+  color: #198754;
+}
+
+
+/* ==========================================================
+   TERMS MODAL OVERLAY
+========================================================== */
+
+.terms-modal-overlay {
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 9999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+
+  background: rgba(0, 0, 0, 0.55);
+}
+
+
+/* ==========================================================
+   TERMS MODAL
+========================================================== */
+
+.terms-modal {
+  width: 100%;
+  max-width: 600px;
+  max-height: 85vh;
+
+  overflow: hidden;
+
+  background: #ffffff;
+
+  border: 0;
+  border-radius: 12px;
+
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.25);
+}
+
+.terms-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 18px 22px;
+
+  color: #ffffff;
+  background: #07328f;
+}
+
+.terms-modal-header h3 {
+  margin: 0;
+
+  color: #ffffff;
+
+  font-size: 20px;
+}
+
+.modal-close {
+  margin: 0;
+  padding: 0;
+
+  color: #ffffff;
+  background: transparent;
+
+  border: 0;
+
+  cursor: pointer;
+
+  font-size: 30px;
+  line-height: 1;
+}
+
+.terms-modal-body {
+  max-height: 55vh;
+
+  overflow-y: auto;
+
+  padding: 22px;
+
+  color: #444444;
+
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.terms-modal-body p:first-child {
+  margin-top: 0;
+}
+
+.terms-modal-body p:last-child {
+  margin-bottom: 0;
+}
+
+.terms-modal-footer {
+  padding: 15px 22px;
+
+  text-align: right;
+
+  background: #f7f7f7;
+
+  border-top: 1px solid #eeeeee;
+}
+
+.terms-close-btn {
+  padding: 9px 24px;
+
+  color: #ffffff;
+  background: #07328f;
+
+  border: 0;
+  border-radius: 6px;
+
+  cursor: pointer;
+
+  font-weight: 600;
+}
+
+
+/* ==========================================================
+   TABLET / MOBILE
+========================================================== */
+
+@media (max-width: 768px) {
+
+  :host {
+    width: 100%;
+    min-height: 100vh;
+
+    margin: 0;
+    padding: 0;
+
+    border: 0;
+
+    background: #ffffff;
+  }
+
+
+  /* Remove outer desktop spacing */
+
+  .enrollment-page-wrapper {
+    width: 100%;
+    min-height: 100vh;
+
+    margin: 0;
+    padding: 0;
+
+    background: #ffffff;
+
+    border: 0;
+    outline: 0;
+  }
+
+
+  /* IMPORTANT:
+     Remove card edge/shadow on mobile.
+     This removes the unwanted top line.
+  */
+
+  .enrollment-container {
+    width: 100%;
+    max-width: none;
+
+    margin: 0;
+    padding: 0;
+
+    background: #ffffff;
+
+    border: 0 !important;
+    outline: 0;
+
+    border-radius: 0;
+
+    box-shadow: none !important;
+
+    overflow: hidden;
+  }
+
+
+  /* HEADER */
+
+  .brand-header {
+    width: 100%;
+    min-height: 105px;
+
+    margin: 0;
+
+    padding: 12px 24px;
+
+    background: #ffffff;
+
+    border: 0 !important;
+    outline: 0;
+
+    box-shadow: none !important;
+  }
+
+  .brand-logo {
+    margin: 0;
+    padding: 0;
+
+    border: 0;
+  }
+
+  .brand-logo img {
+    width: 145px;
+
+    margin: 0;
+    padding: 0;
+
+    border: 0;
+  }
+
+
+  /* HERO */
+
+  .enrollment-hero {
+    margin: 0;
+
+    padding: 28px 18px;
+
+    border: 0;
+
+    box-shadow: none;
+  }
+
+  .enrollment-hero h1 {
+    font-size: 25px;
+  }
+
+  .enrollment-hero p {
+    font-size: 14px;
+  }
+
+
+  /* BODY */
+
+  .enrollment-body {
+    padding: 25px 20px;
+  }
+
+
+  /* FORM */
+
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+
+
+  /* PLANS */
+
+  .plan-options {
+    grid-template-columns: 1fr;
+  }
+
+  .plan-card {
+    min-height: auto;
+  }
+}
+
+
+/* ==========================================================
+   SMALL MOBILE
+========================================================== */
+
+@media (max-width: 480px) {
+
+  :host {
+    margin: 0;
+    padding: 0;
+
+    border: 0;
+
+    box-shadow: none;
+  }
+
+  .enrollment-page-wrapper {
+    margin: 0;
+    padding: 0;
+
+    border: 0;
+
+    box-shadow: none;
+  }
+
+  .enrollment-container {
+    width: 100%;
+
+    margin: 0;
+    padding: 0;
+
+    border: 0 !important;
+    border-radius: 0;
+
+    box-shadow: none !important;
+  }
+
+
+  /* HEADER */
+
+  .brand-header {
+    width: 100%;
+    min-height: 100px;
+
+    margin: 0;
+
+    padding: 10px 18px;
+
+    background: #ffffff;
+
+    border: 0 !important;
+
+    box-shadow: none !important;
+  }
+
+  .brand-logo img {
+    width: 135px;
+  }
+
+  .header-login-btn {
+    padding: 7px 11px;
+
+    font-size: 12px;
+  }
+
+
+  /* HERO */
+
+  .enrollment-hero {
+    margin: 0;
+
+    padding: 25px 16px;
+
+    border: 0;
+
+    box-shadow: none;
+  }
+
+  .hero-icon {
+    width: 47px;
+    height: 47px;
+
+    font-size: 19px;
+  }
+
+  .enrollment-hero h1 {
+    font-size: 23px;
+  }
+
+  .enrollment-hero p {
+    font-size: 14px;
+  }
+
+
+  /* BODY */
+
+  .enrollment-body {
+    padding: 23px 16px;
+  }
+
+
+  /* SECTION */
+
+  .section-heading {
+    gap: 10px;
+  }
+
+  .section-icon {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+  }
+
+  .section-heading h2 {
+    font-size: 18px;
+  }
+
+
+  /* PLAN */
+
+  .plan-options {
+    grid-template-columns: 1fr;
+
+    gap: 17px;
+  }
+
+  .plan-card {
+    min-height: auto;
+
+    padding: 22px 17px;
+  }
+
+  .plan-title {
+    font-size: 23px;
+  }
+
+  .plan-description {
+    min-height: auto;
+  }
+
+
+  /* TERMS */
+
+  .terms-section {
+    align-items: flex-start;
+
+    padding: 14px;
+  }
+
+
+  /* BUTTONS */
+
+  .continue-btn {
+    min-height: 64px;
+  }
+
+
+  /* PAYMENT */
+
+  .payment-section {
+    padding: 18px 15px;
+  }
+
+
+  /* SECURITY */
+
+  .security-message {
+    align-items: flex-start;
+
+    padding: 0 10px;
+  }
+
+
+  /* MODAL */
+
+  .terms-modal-overlay {
+    padding: 12px;
+  }
+
+  .terms-modal-header {
+    padding: 16px;
+  }
+
+  .terms-modal-body {
+    padding: 18px;
+  }
 }

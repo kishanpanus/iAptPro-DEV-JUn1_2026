@@ -1219,6 +1219,7 @@ async uploadExcelData() {
     this.firestoreService.getRSVPs(this.adminApartmentId!, announcementId).subscribe(rsvps => {
       const announcement = this.announcements.find(a => a.id === announcementId);
       if (announcement) announcement.rsvps = rsvps;
+      
     });
   }
   getAnnouncementsWithRSVPs(apartmentId: string) {

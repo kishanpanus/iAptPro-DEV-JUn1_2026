@@ -13,7 +13,9 @@ import { collectionData } from '@angular/fire/firestore';
 import { AuthService } from '../../auth.service';
 import QRCode from 'qrcode';
 import { PaymentService } from '../../services/services/payment.service';
-
+import {
+  serverTimestamp
+} from '@angular/fire/firestore';
 
 interface FlatOwnerDetails {
   apartmentId:string;
@@ -904,7 +906,7 @@ async getApartmentDetails(apartmentId: string): Promise<ApartmentDetails | null>
   //     .then(() => console.log('RSVP submitted'))
   //     .catch(err => console.error('Error submitting RSVP:', err));
   // }
-  async submitRSVP(msg: any) {
+  async submitRSVPOLD(msg: any) {
     try {
       const firestore = this.firestoreService.getFirestore();
       const msgRef = doc(firestore, `apartments/${this.flatOwnerApartmentId}/announcements/${msg.id}`);
@@ -923,6 +925,47 @@ async getApartmentDetails(apartmentId: string): Promise<ApartmentDetails | null>
       console.error('RSVP submission failed:', error);
     }
   }
+
+  async submitRSVP(msg: any) {
+  try {
+    const firestore = this.firestoreService.getFirestore();
+
+    // Use flat owner ID so the same owner doesn't create duplicate RSVPs
+    const rsvpRef = doc(
+      firestore,
+      `apartments/${this.flatOwnerApartmentId}/announcements/${msg.id}/rsvps/${this.flatOwnerId}`
+    );
+
+    await setDoc(
+      rsvpRef,
+      {
+        flatOwnerId: this.flatOwnerId,
+        name: this.flatOwnerDetails?.name || 'Unknown',
+        flatNo:this.flatOwnerDetails?.flat || 'Unknown',
+        status: msg.rsvpStatus,
+        message: msg.rsvpMessage ?? '',
+        respondedAt: serverTimestamp()
+      },
+      { merge: true }
+    );
+
+    // Local UI state only
+    msg.rsvpSubmitted = true;
+
+    this.modalService.show(
+      '✅ RSVP submitted!',
+      'success'
+    );
+
+  } catch (error) {
+    console.error('RSVP submission failed:', error);
+
+    this.modalService.show(
+      'Unable to submit RSVP.',
+      'error'
+    );
+  }
+}
   
 
   async saveSpouseDetails() {

@@ -240,14 +240,64 @@
 <!-- Contact Section -->
 <section class="page-section" id="contact">
   <h1>Let’s Talk!</h1>
-  <p><strong>Email:</strong> support&#64;apt3m.com</p>
 
-  <form class="contact-form">
-    <input type="text" placeholder="Your Name" required />
-    <input type="email" placeholder="Your Email" required />
-    <textarea placeholder="Your Message" rows="5" required></textarea>
-    <button type="submit">Send Message</button>
+  <p>
+    <strong>Email:</strong>
+    support&#64;apt3m.com
+  </p>
+
+  <form
+    class="contact-form"
+    #contactForm="ngForm"
+    (ngSubmit)="sendContactMessage()"
+  >
+
+    <input
+      type="text"
+      name="name"
+      [(ngModel)]="contact.name"
+      placeholder="Your Name"
+      required
+    />
+
+    <input
+      type="email"
+      name="email"
+      [(ngModel)]="contact.email"
+      placeholder="Your Email"
+      required
+    />
+
+    <textarea
+      name="message"
+      [(ngModel)]="contact.message"
+      placeholder="Your Message"
+      rows="5"
+      required
+    ></textarea>
+
+    <button
+      type="submit"
+      [disabled]="contactForm.invalid || sendingMessage"
+    >
+      {{ sendingMessage ? 'Sending...' : 'Send Message' }}
+    </button>
+
   </form>
+
+  <p
+    *ngIf="contactSuccess"
+    class="contact-success"
+  >
+    Thank you! Your message has been sent successfully.
+  </p>
+
+  <p
+    *ngIf="contactError"
+    class="contact-error"
+  >
+    Sorry, we couldn't send your message. Please try again.
+  </p>
 
   <p class="social">
     Follow us on
