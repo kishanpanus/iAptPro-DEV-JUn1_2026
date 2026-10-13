@@ -75,6 +75,9 @@ workflows:
 
       - name: Fetch or create Apple signing assets
         script: |
+          app-store-connect certificates create \
+            --type IOS_DISTRIBUTION
+
           app-store-connect fetch-signing-files \
             "com.apt3m.app" \
             --type IOS_APP_STORE \
