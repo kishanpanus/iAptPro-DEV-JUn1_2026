@@ -73,6 +73,13 @@ workflows:
         script: |
           npx cap sync ios
 
+      - name: Fetch or create Apple signing assets
+        script: |
+          app-store-connect fetch-signing-files \
+            "com.apt3m.app" \
+            --type IOS_APP_STORE \
+            --create
+
       - name: Set up iOS signing
         script: |
           xcode-project use-profiles
