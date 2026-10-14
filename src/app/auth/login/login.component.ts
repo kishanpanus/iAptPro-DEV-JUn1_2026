@@ -1107,38 +1107,118 @@ verifyingOtp = false;
   }
 }
 
+
 async verifyOTP(forceResetPin: boolean = false) {
   const otp = (this.otpCode || '').trim();
+
   if (!otp) {
-    this.modalService.show('Please enter the OTP', 'warning');
+    this.modalService.show(
+      'Please enter the OTP',
+      'warning'
+    );
     return;
   }
+
   if (!this.sessionId) {
-    this.modalService.show('Session expired. Please resend the OTP.', 'error');
+    this.modalService.show(
+      'Session expired. Please resend the OTP.',
+      'error'
+    );
     return;
   }
 
   if (this.verifyingOtp) return;
+
   this.verifyingOtp = true;
 
   try {
-    const res: any = await this.otpService.verifyOtp(this.sessionId, otp);
-    // Success shape: { Status: 'Success', Details: 'OTP Matched' }
-    if (res?.Status === 'Success') {
-      await this.finishLoginAfterOtpVerified(forceResetPin);
-    } else {
-      const msg = res?.Details || 'Invalid OTP!';
+    console.log('[OTP] Starting verification');
+
+    let res: any;
+
+    // STEP 1: Verify OTP with Firebase
+    try {
+      res = await this.otpService.verifyOtp(
+        this.sessionId,
+        otp
+      );
+
+      console.log('[OTP] Verification response received', {
+        status: res?.Status,
+        hasDetails: !!res?.Details
+      });
+
+    } catch (err: any) {
+      console.error('[OTP] API verification failed', {
+        status: err?.status,
+        message: err?.message,
+        providerStatus: err?.error?.Status
+      });
+
+      const msg =
+        err?.error?.Details ||
+        err?.error?.error ||
+        'Unable to verify OTP. Please try again.';
+
       this.modalService.show(msg, 'error');
-      console.warn('Verify OTP failed:', res);
+      return;
     }
+
+    // STEP 2: Check OTP result
+    if (res?.Status !== 'Success') {
+      console.warn('[OTP] Verification rejected', {
+        status: res?.Status
+      });
+
+      this.modalService.show(
+        res?.Details || 'Invalid OTP!',
+        'error'
+      );
+      return;
+    }
+
+    console.log('[OTP] OTP verified successfully');
+
+    // STEP 3: Complete resident login
+    try {
+      console.log('[LOGIN] Starting post-OTP login');
+
+      await this.finishLoginAfterOtpVerified(
+        forceResetPin
+      );
+
+      console.log('[LOGIN] Post-OTP login completed');
+
+    } catch (loginErr: any) {
+      console.error('[LOGIN] Post-OTP login failed', {
+        name: loginErr?.name,
+        message: loginErr?.message,
+        code: loginErr?.code
+      });
+
+      this.modalService.show(
+        'OTP verified, but login could not be completed. Please try again.',
+        'error'
+      );
+      return;
+    }
+
   } catch (err: any) {
-    console.error('Error verifying OTP:', err);
-    const msg = err?.error?.Details || err?.message || 'OTP verification failed. Please try again later.';
-    this.modalService.show(msg, 'error');
+    console.error('[LOGIN] Unexpected error', {
+      name: err?.name,
+      message: err?.message
+    });
+
+    this.modalService.show(
+      'An unexpected error occurred. Please try again.',
+      'error'
+    );
+
   } finally {
     this.verifyingOtp = false;
   }
 }
+
 
   async sendOTP1() {
     // Check if user exists
@@ -1255,75 +1335,185 @@ async verifyOTP(forceResetPin: boolean = false) {
   }
   
   
-  async finishLoginAfterOtpVerified(forceResetPin: boolean = false) {
-    try {
-      if (!this.pendingAdminData) {
-        this.modalService.show('Unexpected error. Please login again.', 'error');
-        return;
-      }
-  
-      const role = this.pendingAdminData.role?.toLowerCase() || '';
-      const userId = this.pendingAdminData.userId || this.pendingAdminData.flatOwnerId || null;
-  
-      if (!userId) {
-        this.modalService.show('User ID missing. Please try again.', 'error');
-        return;
-      }
-  
-      const user = {
-        phone: this.pendingAdminData.phone || '',
-        apartmentId: this.apartmentId || '',
-        name: this.pendingAdminData.name || 'Admin',
-        role: role,
-        otpVerified: true
-      };
-  
-      // Save session data
-      localStorage.setItem('apartmentName', this.pendingAdminData.apartmentName || '');
-      localStorage.setItem('userName', user.name);
-      localStorage.setItem('phoneNumber', user.phone);
-      localStorage.setItem('user', JSON.stringify(user));
-      localStorage.setItem('biometricLoginEnabled', 'true');
-      localStorage.setItem('userRole', role);
-      localStorage.setItem('apartmentId', user.apartmentId);
-      localStorage.setItem('userType', this.mapRoleToUserType(role));
-      localStorage.setItem('userId', userId);
-      localStorage.setItem('sessionExpiry', (Date.now() + 1000 * 60 * 60).toString());
-  
-      // Set admin details in service
-      const fullAdminData: Admin = {
-        ...this.pendingAdminData,
-        name: user.name,
-        phone: user.phone,
-        apartmentName: this.apartmentName,
-        role: role as ExtendedRole
-      };
-  
-      this.authService.setAdminDetails(fullAdminData);
-      this.authService.setOtpVerified(true);
-      this.authService.startIdleMonitor();
-  
-      // ✅ Re-check PIN status using centralized function
-      const pinExists = await this.checkPinInFirestore();
-      localStorage.setItem('pinSet', pinExists ? 'true' : 'false');
-  
-      if (forceResetPin || !pinExists) {
-        this.router.navigate(['/set-pin']);
-        return;
-      }
-  
-      // Navigate based on role
-      switch (role) {
-        case 'admin': this.router.navigate(['/admin']); break;
-        case 'superadmin': this.router.navigate(['/superadmin']); break;
-        case 'security': this.router.navigate(['/security']); break;
-        default: this.router.navigate(['/dashboard']); break;
-      }
-    } catch (error) {
-      console.error('Error verifying OTP:', error);
-      this.modalService.show('Error verifying OTP. Please try again later.', 'error');
+
+async finishLoginAfterOtpVerified(
+  forceResetPin: boolean = false
+): Promise<void> {
+
+  try {
+    console.log('[LOGIN] Starting post-OTP login');
+
+    // STEP 1: Validate pending user data
+    if (!this.pendingAdminData) {
+      console.error(
+        '[LOGIN] pendingAdminData is missing'
+      );
+
+      this.modalService.show(
+        'Login information is missing. Please start login again.',
+        'error'
+      );
+      return;
     }
+
+    const adminData = this.pendingAdminData;
+
+    const role =
+      (adminData.role || '').toLowerCase();
+
+    const userId =
+      adminData.userId ||
+      adminData.flatOwnerId ||
+      null;
+
+    if (!userId) {
+      console.error('[LOGIN] User ID missing', {
+        role
+      });
+
+      this.modalService.show(
+        'User ID missing. Please try again.',
+        'error'
+      );
+      return;
+    }
+
+    console.log('[LOGIN] User data validated', {
+      role,
+      hasUserId: true,
+      hasApartmentId: !!this.apartmentId
+    });
+
+    // STEP 2: Prepare session
+    const user = {
+      phone: adminData.phone || '',
+      apartmentId: this.apartmentId || '',
+      name: adminData.name || 'Admin',
+      role,
+      otpVerified: true
+    };
+
+    // STEP 3: Save local session
+    localStorage.setItem(
+      'apartmentName',
+      adminData.apartmentName || ''
+    );
+
+    localStorage.setItem('userName', user.name);
+    localStorage.setItem('phoneNumber', user.phone);
+    localStorage.setItem('user', JSON.stringify(user));
+    localStorage.setItem('biometricLoginEnabled', 'true');
+    localStorage.setItem('userRole', role);
+    localStorage.setItem('apartmentId', user.apartmentId);
+    localStorage.setItem(
+      'userType',
+      this.mapRoleToUserType(role)
+    );
+    localStorage.setItem('userId', String(userId));
+
+    localStorage.setItem(
+      'sessionExpiry',
+      (Date.now() + 1000 * 60 * 60).toString()
+    );
+
+    console.log('[LOGIN] Session saved');
+
+    // STEP 4: Update authentication service
+    const fullAdminData: Admin = {
+      ...adminData,
+      name: user.name,
+      phone: user.phone,
+      apartmentName: this.apartmentName,
+      role: role as ExtendedRole
+    };
+
+    this.authService.setAdminDetails(fullAdminData);
+    this.authService.setOtpVerified(true);
+    this.authService.startIdleMonitor();
+
+    console.log('[LOGIN] Authentication state updated');
+
+    // STEP 5: Check PIN in Firestore
+    console.log('[LOGIN] Checking PIN status');
+
+    const pinExists = await this.checkPinInFirestore();
+
+    localStorage.setItem(
+      'pinSet',
+      pinExists ? 'true' : 'false'
+    );
+
+    console.log('[LOGIN] PIN check completed', {
+      pinExists
+    });
+
+    // STEP 6: Determine destination
+    let destination: string;
+
+    if (forceResetPin || !pinExists) {
+      destination = '/set-pin';
+    } else {
+      switch (role) {
+        case 'admin':
+          destination = '/admin';
+          break;
+
+        case 'superadmin':
+          destination = '/superadmin';
+          break;
+
+        case 'security':
+          destination = '/security';
+          break;
+
+        default:
+          destination = '/dashboard';
+          break;
+      }
+    }
+
+    // STEP 7: Navigate
+    console.log('[LOGIN] Navigating', {
+      destination
+    });
+
+    const navigated = await this.router.navigate([
+      destination
+    ]);
+
+    if (!navigated) {
+      console.error('[LOGIN] Navigation cancelled', {
+        destination
+      });
+
+      this.modalService.show(
+        'Login verified, but navigation could not be completed.',
+        'error'
+      );
+      return;
+    }
+
+    console.log('[LOGIN] Navigation successful');
+
+  } catch (error: any) {
+
+    console.error('[LOGIN] Post-OTP login failed', {
+      name: error?.name,
+      message: error?.message,
+      code: error?.code
+    });
+
+    this.modalService.show(
+      'OTP verified, but login could not be completed.',
+      'error'
+    );
+
+    // Rethrow only if the caller is responsible
+    // for displaying the error.
+    // Otherwise, leave the error handled here.
   }
+}
+
   
 
   

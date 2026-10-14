@@ -10,9 +10,13 @@ const cors = corsLib({
   origin: [
     "http://localhost:4200",
     "https://localhost",
+    "capacitor://localhost",
     "https://apt3m.com"
-  ]
+  ],
+  methods: ["GET", "POST", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
 });
+
 admin.initializeApp();
 
 const BASE = "https://2factor.in/API/V1";
@@ -36,121 +40,134 @@ function toE164(phone: string) {
 }
 
 // POST { phone }
+
 export const sendOtp = onRequest(
   { region: "us-central1" },
   (req, res) => {
     cors(req, res, async () => {
       try {
-      if (req.method !== "POST") {
-        res.status(405).send("Method Not Allowed");
-        return;
-      }
-
-      const { phone } = (req.body ?? {}) as { phone?: string };
-      if (!phone) {
-        res.status(400).json({ error: "phone required" });
-        return;
-      }
-
-      const apiKey = await getApiKey();
-      const to = toE164(phone);
-
-  const url =
-  `${BASE}/${encodeURIComponent(apiKey)}/SMS/${encodeURIComponent(to)}` +
-  `/AUTOGEN/${encodeURIComponent(TEMPLATE)}?From=${encodeURIComponent(SENDER)}`;
-
-
-      logger.info("sendOtp -> calling 2Factor", { toMasked: to.replace(/\d{6}$/, "******") });
-
-      const r = await fetch(url);
-      const text = await r.text();
-
-      let data: any;
-      try { data = JSON.parse(text); } catch { data = { raw: text }; }
-
-      if (!r.ok) {
-        logger.error("2Factor sendOtp non-200", { status: r.status, data });
-        res.status(400).json(data);
-        return;
-      }
-
-      res.status(200).json(data); // { Status:'Success', Details:'<sessionId>' }
-      return;
-    }    catch (err: any) {
-        logger.error("sendOtp exception", err);
-        res.status(500).json({
-          error: "sendOtp failed",
-          details: err?.message || String(err)
+        logger.info("sendOtp request received", {
+          method: req.method,
+          origin: req.headers.origin || "none"
         });
-        return;
-      }
-    });
-  }
-);
 
-// POST { sessionId, otp }
-// POST { sessionId, otp }
-export const verifyOtp = onRequest(
-  { region: "us-central1" },
-  (req, res) => {
-    cors(req, res, async () => {
-      try {
+        // Allow POST requests only
         if (req.method !== "POST") {
           res.status(405).send("Method Not Allowed");
           return;
         }
 
-        const { sessionId, otp } = (req.body ?? {}) as {
-          sessionId?: string;
-          otp?: string;
+        // Validate phone number
+        const { phone } = (req.body ?? {}) as {
+          phone?: string;
         };
 
-        if (!sessionId || !otp) {
+        if (
+          typeof phone !== "string" ||
+          !phone.trim()
+        ) {
           res.status(400).json({
-            error: "sessionId and otp required"
+            error: "phone required"
           });
           return;
         }
 
+        // Get 2Factor credentials
         const apiKey = await getApiKey();
+        const to = toE164(phone);
 
+        // Construct 2Factor URL
         const url =
           `${BASE}/${encodeURIComponent(apiKey)}` +
-          `/SMS/VERIFY/${encodeURIComponent(sessionId)}` +
-          `/${encodeURIComponent(otp)}`;
+          `/SMS/${encodeURIComponent(to)}` +
+          `/AUTOGEN/${encodeURIComponent(TEMPLATE)}` +
+          `?From=${encodeURIComponent(SENDER)}`;
 
-        logger.info("verifyOtp -> calling 2Factor");
+        logger.info("sendOtp -> calling 2Factor", {
+          toMasked: to.replace(/\d{6}$/, "******")
+        });
 
-        const r = await fetch(url);
-        const text = await r.text();
+        // Add timeout for 2Factor API
+        const controller = new AbortController();
 
+        const timeout = setTimeout(() => {
+          controller.abort();
+        }, 20000);
+
+        let r: Response;
+        let responseText: string;
+
+        try {
+          r = await fetch(url, {
+            signal: controller.signal
+          });
+
+          responseText = await r.text();
+        } finally {
+          clearTimeout(timeout);
+        }
+
+        // Log provider response
+        logger.info("2Factor sendOtp response", {
+          status: r.status,
+          ok: r.ok
+        });
+
+        // Parse provider response
         let data: any;
 
         try {
-          data = JSON.parse(text);
+          data = JSON.parse(responseText);
         } catch {
-          data = { raw: text };
+          data = { raw: responseText };
         }
 
+        // Handle provider HTTP errors
         if (!r.ok) {
-          logger.error("2Factor verifyOtp non-200", {
+          logger.error("2Factor sendOtp non-200", {
             status: r.status,
-            data
+            providerStatus: data?.Status || "unknown"
           });
 
-          res.status(400).json(data);
+          res.status(502).json({
+            error: "OTP provider request failed"
+          });
           return;
         }
 
+        // Handle provider-level failure
+        if (data?.Status !== "Success") {
+          logger.error("2Factor sendOtp rejected", {
+            providerStatus: data?.Status || "unknown"
+          });
+
+          res.status(502).json({
+            error: "OTP provider rejected request"
+          });
+          return;
+        }
+
+        logger.info("sendOtp returning success", {
+          status: 200,
+          origin: req.headers.origin || "none"
+        });
+
+        // Preserve existing response format
         res.status(200).json(data);
         return;
 
       } catch (err: any) {
-        logger.error("verifyOtp exception", err);
+        const isTimeout = err?.name === "AbortError";
 
-        res.status(500).json({
-          error: "verifyOtp failed",
-          details: err?.message || String(err)
+        logger.error("sendOtp exception", {
+          message: err?.message || String(err),
+          name: err?.name || "UnknownError"
+        });
+
+        res.status(isTimeout ? 504 : 500).json({
+          error: isTimeout
+            ? "OTP provider timeout"
+            : "sendOtp failed"
         });
         return;
       }
@@ -158,21 +175,21 @@ export const verifyOtp = onRequest(
   }
 );
 
-// ==========================================================
-// CONTACT FORM EMAIL
-// POST { name, email, message }
-// ==========================================================
 
-export const sendContactEmail = onRequest(
-  {
-    region: "us-central1",
-    secrets: ["ZOHO_EMAIL", "ZOHO_APP_PASSWORD"]
-  },
+// POST { sessionId, otp }
+// POST { sessionId, otp }
+
+
+export const verifyOtp = onRequest(
+  { region: "us-central1" },
   (req, res) => {
-
     cors(req, res, async () => {
-
       try {
+        logger.info("verifyOtp request received", {
+          method: req.method,
+          origin: req.headers.origin || "none",
+          contentType: req.headers["content-type"] || "none"
+        });
 
         // Only allow POST
         if (req.method !== "POST") {
@@ -182,86 +199,254 @@ export const sendContactEmail = onRequest(
           return;
         }
 
-        const { name, email, message } = (req.body ?? {}) as {
-          name?: string;
-          email?: string;
-          message?: string;
+        // Validate request payload
+        const { sessionId, otp } = (req.body ?? {}) as {
+          sessionId?: unknown;
+          otp?: unknown;
         };
 
+        if (
+          typeof sessionId !== "string" ||
+          !sessionId.trim() ||
+          typeof otp !== "string" ||
+          !otp.trim()
+        ) {
+          logger.warn("verifyOtp invalid request payload", {
+            hasSessionId:
+              typeof sessionId === "string" &&
+              sessionId.length > 0,
+            hasOtp:
+              typeof otp === "string" &&
+              otp.length > 0
+          });
 
-        // Validate required fields
-        if (!name || !email || !message) {
+          res.status(400).json({
+            error: "sessionId and otp required"
+          });
+          return;
+        }
+
+        // Retrieve 2Factor API key
+        const apiKey = await getApiKey();
+
+        // Construct 2Factor verification URL
+        const url =
+          `${BASE}/${encodeURIComponent(apiKey)}` +
+          `/SMS/VERIFY/${encodeURIComponent(sessionId)}` +
+          `/${encodeURIComponent(otp)}`;
+
+        logger.info("verifyOtp -> calling 2Factor");
+
+        // Apply 20-second timeout
+        const controller = new AbortController();
+
+        const timeout = setTimeout(() => {
+          controller.abort();
+        }, 20000);
+
+        let response: Response;
+        let responseText: string;
+
+        try {
+          response = await fetch(url, {
+            method: "GET",
+            signal: controller.signal
+          });
+
+          responseText = await response.text();
+        } finally {
+          clearTimeout(timeout);
+        }
+
+        logger.info("2Factor verifyOtp response", {
+          httpStatus: response.status,
+          ok: response.ok
+        });
+
+        // Parse 2Factor response
+        let data: any;
+
+        try {
+          data = JSON.parse(responseText);
+        } catch {
+          logger.error("2Factor returned invalid JSON");
+
+          res.status(502).json({
+            error: "Invalid OTP provider response"
+          });
+          return;
+        }
+
+        // Handle provider HTTP failures
+        if (!response.ok) {
+          logger.warn("2Factor verification HTTP failure", {
+            httpStatus: response.status,
+            providerStatus: data?.Status || "unknown"
+          });
+
+          // Preserve provider response for Angular
+          res.status(400).json(data);
+          return;
+        }
+
+        // Handle invalid or expired OTP
+        if (data?.Status !== "Success") {
+          logger.warn("2Factor OTP verification rejected", {
+            providerStatus: data?.Status || "unknown"
+          });
+
+          // Preserve original provider response
+          res.status(400).json(data);
+          return;
+        }
+
+        // OTP verified successfully
+        logger.info("verifyOtp returning success", {
+          status: 200,
+          origin: req.headers.origin || "none"
+        });
+
+        res.status(200).json(data);
+        return;
+
+      } catch (err: any) {
+        const isTimeout = err?.name === "AbortError";
+
+        logger.error("verifyOtp exception", {
+          name: err?.name || "UnknownError",
+          message: err?.message || String(err)
+        });
+
+        res.status(isTimeout ? 504 : 500).json({
+          error: isTimeout
+            ? "OTP verification timeout"
+            : "verifyOtp failed"
+        });
+        return;
+      }
+    });
+  }
+);
+
+
+
+// ==========================================================
+// CONTACT FORM EMAIL
+// POST { name, email, message }
+// ==========================================================
+
+
+export const sendContactEmail = onRequest(
+  {
+    region: "us-central1",
+    secrets: ["ZOHO_EMAIL", "ZOHO_APP_PASSWORD"]
+  },
+  (req, res) => {
+    cors(req, res, async () => {
+      try {
+        logger.info("sendContactEmail request received", {
+          method: req.method,
+          origin: req.headers.origin || "none"
+        });
+
+        // Allow POST only
+        if (req.method !== "POST") {
+          res.status(405).json({
+            error: "Method Not Allowed"
+          });
+          return;
+        }
+
+        const { name, email, message } = (req.body ?? {}) as {
+          name?: unknown;
+          email?: unknown;
+          message?: unknown;
+        };
+
+        // Validate input types
+        if (
+          typeof name !== "string" ||
+          typeof email !== "string" ||
+          typeof message !== "string" ||
+          !name.trim() ||
+          !email.trim() ||
+          !message.trim()
+        ) {
           res.status(400).json({
             error: "Name, email and message are required."
           });
           return;
         }
 
+        const cleanName = name.trim();
+        const cleanEmail = email.trim();
+        const cleanMessage = message.trim();
 
-        // Basic email validation
-        const emailPattern =
-          /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        // Validate lengths
+        if (
+          cleanName.length > 100 ||
+          cleanEmail.length > 254 ||
+          cleanMessage.length > 5000
+        ) {
+          res.status(400).json({
+            error: "One or more fields exceed the allowed length."
+          });
+          return;
+        }
 
-        if (!emailPattern.test(email)) {
+        // Validate email
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (!emailPattern.test(cleanEmail)) {
           res.status(400).json({
             error: "Invalid email address."
           });
           return;
         }
 
-
+        // Firebase secrets
         const zohoEmail = process.env.ZOHO_EMAIL;
-        const zohoPassword =
-          process.env.ZOHO_APP_PASSWORD;
-
+        const zohoPassword = process.env.ZOHO_APP_PASSWORD;
 
         if (!zohoEmail || !zohoPassword) {
-
-          logger.error(
-            "Zoho email secrets are missing."
-          );
+          logger.error("Zoho email secrets are missing");
 
           res.status(500).json({
             error: "Email configuration missing."
           });
-
           return;
         }
 
+        // Zoho SMTP configuration
+        const transporter = nodemailer.createTransport({
+          host: "smtp.zoho.com",
+          port: 465,
+          secure: true,
+          auth: {
+            user: zohoEmail,
+            pass: zohoPassword
+          },
+          connectionTimeout: 20000,
+          greetingTimeout: 20000,
+          socketTimeout: 30000
+        });
 
-        // Zoho SMTP
-     const transporter = nodemailer.createTransport({
-  host: "smtp.zoho.com",
-  port: 465,
-  secure: true,
-  auth: {
-    user: process.env.ZOHO_EMAIL, 
-    pass: process.env.ZOHO_APP_PASSWORD
-  }
-});
-
-
-        // Send email
-await transporter.sendMail({
-  from: `"Apt3M Website" <admin@apt3m.com>`,
-  to: "support@apt3m.com",
-  replyTo: email,
-  subject: `New Apt3M Contact Message - ${name}`,
-  text: `
-Name: ${name}
-Email: ${email}
+        // Send contact email
+        await transporter.sendMail({
+          from: `"Apt3M Website" <${zohoEmail}>`,
+          to: "support@apt3m.com",
+          replyTo: cleanEmail,
+          subject: `New Apt3M Contact Message - ${cleanName.replace(/[\r\n]/g, " ")}`,
+          text: `
+Name: ${cleanName}
+Email: ${cleanEmail}
 
 Message:
-${message}
-
+${cleanMessage}
           `,
-
           html: `
             <div style="font-family:Arial,sans-serif">
-
-              <h2>
-                New Apt3M Contact Message
-              </h2>
+              <h2>New Apt3M Contact Message</h2>
 
               <p>
                 A new message was submitted from
@@ -272,21 +457,18 @@ ${message}
 
               <p>
                 <strong>Name:</strong>
-                ${escapeHtml(name)}
+                ${escapeHtml(cleanName)}
               </p>
 
               <p>
                 <strong>Email:</strong>
-                ${escapeHtml(email)}
+                ${escapeHtml(cleanEmail)}
               </p>
 
-              <p>
-                <strong>Message:</strong>
-              </p>
+              <p><strong>Message:</strong></p>
 
               <p>
-                ${escapeHtml(message)
-                  .replace(/\n/g, "<br>")}
+                ${escapeHtml(cleanMessage).replace(/\n/g, "<br>")}
               </p>
 
               <hr>
@@ -294,47 +476,34 @@ ${message}
               <p style="font-size:12px;color:#777">
                 Sent from Apt3M Contact Form
               </p>
-
             </div>
           `
         });
 
-
-        logger.info(
-          "Contact email sent successfully",
-          {
-            senderEmail: email
-          }
-        );
-
+        logger.info("Contact email sent successfully");
 
         res.status(200).json({
           success: true,
           message: "Message sent successfully."
         });
-
         return;
 
       } catch (error: any) {
+        logger.error("sendContactEmail failed", {
+          message: error?.message || String(error),
+          code: error?.code || "UNKNOWN"
+        });
 
- logger.error(
-    `sendContactEmail FAILED: MESSAGE=${error?.message} | CODE=${error?.code} | RESPONSE=${error?.response}`
-  );
-
-  res.status(500).json({
-    success: false,
-    error: error?.message || "Unable to send your message.",
-    code: error?.code || "",
-    response: error?.response || ""
-  });
-
-  return;
+        res.status(500).json({
+          success: false,
+          error: "Unable to send your message."
+        });
+        return;
       }
-
     });
-
   }
 );
+
 function escapeHtml(value: string): string {
   return value
     .replace(/&/g, "&amp;")
