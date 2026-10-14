@@ -44,6 +44,7 @@ workflows:
       - build/ios/Build/Products/Debug-iphonesimulator/*.app
       - build/ios/Logs/Build/*.xcactivitylog
 
+
   apt3m-ios-release:
     name: APT3M iOS Release
     max_build_duration: 60
@@ -78,6 +79,13 @@ workflows:
           cd ios/App
           pod install
 
+      - name: Set iOS build number
+        script: |
+          BUILD_NUMBER=$((PROJECT_BUILD_NUMBER + 1))
+          echo "Setting iOS build number to $BUILD_NUMBER"
+          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $BUILD_NUMBER" ios/App/App/Info.plist
+          /usr/libexec/PlistBuddy -c "Print :CFBundleVersion" ios/App/App/Info.plist
+
       - name: Set up iOS signing
         script: |
           xcode-project use-profiles
@@ -91,8 +99,9 @@ workflows:
     artifacts:
       - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
+
     publishing:
       app_store_connect:
         auth: integration
         submit_to_testflight: true
-        submit_to_app_store: false 
+        submit_to_app_store: false
