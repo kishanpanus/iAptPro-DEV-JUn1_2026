@@ -96,7 +96,7 @@ verifyingOtp = false;
     private modalService: ModalService, private faio: FingerprintAIO,private otpService: OtpService) {}
  
   async ngOnInit() {
-    localStorage.clear();
+   // localStorage.clear();
     const biometricEnabled = localStorage.getItem('biometricLoginEnabled');
     const remembered = localStorage.getItem('apt3m_remembered');
     const userStr = localStorage.getItem('user');
@@ -339,8 +339,220 @@ verifyingOtp = false;
   }
   
   
+async onPhoneNumberChange(): Promise<boolean> {
+  const phone = (this.phoneNumber || '').trim();
 
-  async onPhoneNumberChange(): Promise<boolean> {
+  this.phoneNumberNotFound = false;
+  this.userNotFound = false;
+  this.isAdminApproved = true;
+
+  // Clear stale user context before starting a new lookup
+  this.pendingAdminData = null;
+  this.blnSendOTP = false;
+
+  if (!/^\d{10}$/.test(phone)) {
+    return false;
+  }
+
+  try {
+    console.log('[LOGIN] Starting user lookup');
+
+    const result =
+      await this.firestoreService.getUserByPhoneNumber(phone);
+
+    // Prevent an older async lookup from overwriting
+    // the context for a different phone number.
+    if ((this.phoneNumber || '').trim() !== phone) {
+      console.warn('[LOGIN] Phone changed during lookup');
+      return false;
+    }
+
+    if (!result) {
+      this.userNotFound = true;
+      this.phoneNumberNotFound = true;
+
+      console.warn('[LOGIN] User not found');
+      return false;
+    }
+
+    const {
+      userData,
+      role,
+      apartmentId,
+      flatOwnerId
+    } = result;
+
+    const resolvedUserId =
+      ('userId' in result && typeof result.userId === 'string'
+        ? result.userId
+        : '') ||
+      flatOwnerId ||
+      '';
+
+    const resolvedApartmentId = apartmentId || null;
+
+    if (!resolvedUserId) {
+      console.error('[LOGIN] Missing Firestore user ID', {
+        role
+      });
+
+      this.modalService.show(
+        'User ID is missing. Please contact support.',
+        'error'
+      );
+      return false;
+    }
+
+    // Check apartment lock status when applicable
+    if (resolvedApartmentId) {
+      const apartmentData =
+        await this.firestoreService.getApartmentById(
+          resolvedApartmentId
+        );
+
+      if (apartmentData?.locked) {
+        this.isAdminApproved = false;
+
+        this.modalService.show(
+          'Access denied. Your apartment is locked by SuperAdmin.\nReason: ' +
+          (apartmentData.lockedReason || 'No reason specified.'),
+          'warning'
+        );
+
+        return false;
+      }
+    } else if (role !== 'superadmin') {
+      console.error('[LOGIN] Apartment ID missing', {
+        role
+      });
+
+      this.modalService.show(
+        'Apartment information is missing.',
+        'error'
+      );
+      return false;
+    }
+
+    // Check account approval
+    const normalizedRole = String(role || '').toLowerCase();
+
+    if (
+      normalizedRole !== 'superadmin' &&
+      !userData.approved
+    ) {
+      this.isAdminApproved = false;
+
+      this.modalService.show(
+        'Your registration is pending SuperAdmin approval.',
+        'warning'
+      );
+
+      return false;
+    }
+
+    if (userData.isActive === false) {
+      this.modalService.show(
+        'Your account is inactive. Please contact support.',
+        'warning'
+      );
+      return false;
+    }
+
+    // Build complete user profile
+    const adminData: Admin = {
+      name:
+        userData.adminName?.trim() ||
+        userData.name?.trim() ||
+        'Admin',
+
+      role: role as ExtendedRole,
+      apartmentName: userData.apartmentName || '',
+      approvalDate: userData.approvalDate || '',
+      approvalStatus: userData.approvalStatus || '',
+      approved: userData.approved ?? true,
+      block: userData.block || '',
+      creationDate:
+        userData.creationDate || new Date().toISOString(),
+      email: userData.email || '',
+      flatNumber:
+        userData.flatNumber || userData.flat || '',
+      flatOwnerId: flatOwnerId || '',
+      phone: userData.phone || userData.phoneNumber || phone,
+      isActive: userData.isActive ?? true,
+      userId: resolvedUserId
+    };
+
+    // Save component state only after validation
+    this.role = role;
+    this.apartmentId = resolvedApartmentId;
+    this.apartmentName = adminData.apartmentName;
+    this.pendingAdminData = adminData;
+
+    this.currentUser = {
+      role,
+      apartment: resolvedApartmentId,
+      flat: adminData.flatNumber,
+      name: adminData.name,
+      phoneNumber: adminData.phone
+    } as any;
+
+    console.log('[LOGIN] Pending profile prepared', {
+      role,
+      hasUserId: true,
+      hasApartmentId: !!resolvedApartmentId,
+      hasPendingAdminData: !!this.pendingAdminData
+    });
+
+    // Preserve existing session-related values
+    localStorage.setItem('userId', resolvedUserId);
+    localStorage.setItem(
+      'userType',
+      this.mapRoleToUserType(role)
+    );
+    localStorage.setItem(
+      'apartmentId',
+      resolvedApartmentId || ''
+    );
+    localStorage.setItem(
+      'user',
+      JSON.stringify(this.currentUser)
+    );
+
+    await this.checkPinStatus();
+
+    // Ensure this is still the current lookup
+    if ((this.phoneNumber || '').trim() !== phone) {
+      this.pendingAdminData = null;
+      return false;
+    }
+
+    this.blnSendOTP = true;
+    this.userNotFound = false;
+
+    console.log('[LOGIN] User lookup completed');
+
+    return true;
+
+  } catch (error: any) {
+    console.error('[LOGIN] User lookup failed', {
+      code: error?.code,
+      message: error?.message
+    });
+
+    this.pendingAdminData = null;
+    this.blnSendOTP = false;
+
+    this.modalService.show(
+      'Unable to load your account information. Please try again.',
+      'error'
+    );
+
+    return false;
+  }
+}
+
+
+  async onPhoneNumberChangeOLD(): Promise<boolean> {
     this.isAdminApproved =  true;
     const phone = this.phoneNumber.trim();
     this.phoneNumberNotFound = false;
@@ -357,7 +569,7 @@ verifyingOtp = false;
     }
   
     const { userData, role, apartmentId, flatOwnerId } = result;
-  
+   
     this.role = role;
     this.apartmentId = apartmentId || null;
     this.apartmentName = userData.apartmentName || '';
@@ -1071,7 +1283,143 @@ verifyingOtp = false;
     this.userNotFound = false;
   }
 
-  async sendOTP() {
+  
+async sendOTP(): Promise<void> {
+  if (this.sendingOtp) return;
+
+  const phone = (this.phoneNumber || '').trim();
+
+  // Step 1: Validate phone number
+  if (!/^\d{10}$/.test(phone)) {
+    this.modalService.show(
+      'Please enter a valid 10-digit phone number.',
+      'warning'
+    );
+    return;
+  }
+
+  this.sendingOtp = true;
+
+  // Reset previous OTP session
+  this.sessionId = '';
+  this.otpSent = false;
+
+  try {
+    console.log('[LOGIN] Starting OTP login');
+
+    // Step 2: Load user details from Firestore
+    const userFound = await this.onPhoneNumberChange();
+
+    // Read updated user data after async lookup
+    const adminData =
+      this.pendingAdminData as Admin | null;
+
+    if (!userFound || !adminData) {
+      console.error('[LOGIN] User profile unavailable');
+
+      // onPhoneNumberChange may already show a
+      // specific error (locked/pending/not found).
+      if (this.userNotFound || this.phoneNumberNotFound) {
+        this.modalService.show(
+          'User not found. Please contact property management.',
+          'warning'
+        );
+      }
+
+      return;
+    }
+
+    // Step 3: Validate user ID
+    const userId =
+      adminData.userId ||
+      adminData.flatOwnerId ||
+      '';
+
+    if (!userId) {
+      console.error('[LOGIN] User ID missing');
+
+      this.modalService.show(
+        'User information is incomplete. Please contact support.',
+        'error'
+      );
+      return;
+    }
+
+    // Ensure user has not changed the phone number
+    if ((this.phoneNumber || '').trim() !== phone) {
+      console.warn('[LOGIN] Phone changed during login');
+      return;
+    }
+
+    console.log('[LOGIN] User profile ready', {
+      role: adminData.role,
+      hasUserId: !!userId,
+      hasApartmentId: !!this.apartmentId,
+      hasPendingAdminData: !!this.pendingAdminData
+    });
+
+    // Step 4: Send OTP through Firebase
+    console.log('[OTP] Sending OTP request');
+
+    const res: any =
+      await this.otpService.sendOtp(phone);
+
+    // Check phone again after network request
+    if ((this.phoneNumber || '').trim() !== phone) {
+      console.warn('[OTP] Phone changed after request');
+      return;
+    }
+
+    // Step 5: Handle OTP response
+    if (res?.Status === 'Success' && res?.Details) {
+      this.sessionId = String(res.Details);
+      this.otpSent = true;
+
+        console.log('[OTP] After sending OTP', {
+        hasPendingAdminData: !!this.pendingAdminData,
+        role: this.pendingAdminData?.role,
+        hasSessionId: !!this.sessionId
+      });
+
+      console.log('[OTP] OTP sent successfully', {
+        hasSessionId: !!this.sessionId,
+        hasPendingAdminData: !!this.pendingAdminData
+      });
+
+      this.modalService.show(
+        'OTP sent successfully!',
+        'success'
+      );
+
+    } else {
+      console.error('[OTP] OTP provider rejected request', {
+        status: res?.Status
+      });
+
+      this.modalService.show(
+        'Failed to send OTP. Please try again.',
+        'error'
+      );
+    }
+
+  } catch (err: any) {
+    console.error('[OTP] Send OTP error', {
+      message: err?.message,
+      status: err?.status
+    });
+
+    this.modalService.show(
+      'Unable to send OTP. Please try again.',
+      'error'
+    );
+
+  } finally {
+    this.sendingOtp = false;
+  }
+}
+
+
+  async sendOTPOLD() {
   if (this.userNotFound) {
     this.modalService.show('User not found. Please contact your property management.', 'warning');
     return;
@@ -1087,7 +1435,43 @@ verifyingOtp = false;
   this.sendingOtp = true;
 
   try {
-    const res: any = await this.otpService.sendOtp(phone);
+    // Ensure user information is loaded before sending OTP.
+      this.pendingAdminData = null;
+
+      const userFound = await this.onPhoneNumberChange();
+
+      if (!userFound || !this.pendingAdminData) {
+        console.error('[LOGIN] Missing user information');
+
+        this.modalService.show(
+          'Unable to load login information. Please try again.',
+          'error'
+        );
+
+        return;
+      }
+
+      const adminData = this.pendingAdminData as Admin | null;
+
+      if (!adminData) {
+      console.error('[LOGIN] pendingAdminData is missing');
+
+      this.modalService.show(
+        'Unable to load login information. Please try again.',
+        'error'
+      );
+      return;
+      }
+
+      console.log('[LOGIN] User loaded successfully', {
+      role: adminData.role,
+      hasUserId: !!(
+        adminData.userId ||
+        adminData.flatOwnerId
+      )
+      });
+
+      const res: any = await this.otpService.sendOtp(phone);
     // 2Factor success shape: { Status: 'Success', Details: '<sessionId>' }
     if (res?.Status === 'Success' && res?.Details) {
       this.sessionId = res.Details;
@@ -1109,6 +1493,12 @@ verifyingOtp = false;
 
 
 async verifyOTP(forceResetPin: boolean = false) {
+
+  console.log('[OTP] Before verification', {
+  hasPendingAdminData: !!this.pendingAdminData,
+  hasSessionId: !!this.sessionId
+});
+
   const otp = (this.otpCode || '').trim();
 
   if (!otp) {
@@ -1178,6 +1568,16 @@ async verifyOTP(forceResetPin: boolean = false) {
     }
 
     console.log('[OTP] OTP verified successfully');
+
+    console.log('[LOGIN] Checking login context', {
+  hasPendingAdminData: !!this.pendingAdminData,
+  role: this.pendingAdminData?.role,
+  hasUserId: !!(
+    this.pendingAdminData?.userId ||
+    this.pendingAdminData?.flatOwnerId
+  ),
+  hasApartmentId: !!this.apartmentId
+});
 
     // STEP 3: Complete resident login
     try {
