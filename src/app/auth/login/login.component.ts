@@ -348,13 +348,18 @@ async selectMethod(method: 'face' | 'pin' | 'otp') {
   async onPhoneNumberChange(
   checkPin: boolean = true
 ): Promise<boolean> {
-    this.isAdminApproved =  true;
-    const phone = this.phoneNumber.trim();
+    this.isAdminApproved = true;
+    this.userNotFound = false;
+    this.pendingAdminData = null;
+
+    const phone = (this.phoneNumber || '').trim();
     this.phoneNumberNotFound = false;
     if (!phone || phone.length !== 10) return false;
   
     const firestore = this.firestoreService.getFirestore();
+    console.time('[LOGIN] getUserByPhoneNumber');
     const result = await this.firestoreService.getUserByPhoneNumber(phone);
+    console.timeEnd('[LOGIN] getUserByPhoneNumber');
   
     if (!result) {
       this.userNotFound = true;
@@ -370,8 +375,14 @@ async selectMethod(method: 'face' | 'pin' | 'otp') {
     this.apartmentName = userData.apartmentName || '';
     const userId = flatOwnerId || '';
     const userType = this.mapRoleToUserType(role);
-  
-    const apartmentData = await this.firestoreService.getApartmentById(this.apartmentId!);
+  console.time('[LOGIN] getApartmentById');
+  let apartmentData: any = null;
+  if (this.apartmentId) {
+  apartmentData =
+    await this.firestoreService.getApartmentById(this.apartmentId);
+}
+    //const apartmentData = await this.firestoreService.getApartmentById(this.apartmentId!);
+    console.timeEnd('[LOGIN] getApartmentById');
     const adminData = userData;
   
     if (apartmentData?.locked) {
@@ -1105,7 +1116,7 @@ async sendOTP(): Promise<void> {
     const userFound = await this.withTimeout(
       this.onPhoneNumberChange(false),
       'User lookup',
-      15000
+      30000
     );
 
     if (!userFound || !this.pendingAdminData) {
