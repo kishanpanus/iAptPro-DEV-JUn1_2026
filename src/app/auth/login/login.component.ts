@@ -155,8 +155,52 @@ verifyingOtp = false;
     this.otpSent = false;
   }
   
+  
+private async checkPinStatus(): Promise<void> {
+  const apartmentId = this.apartmentId;
+  const userId = localStorage.getItem('userId');
+  const deviceId =
+    localStorage.getItem('apt3m_deviceId') || 'default';
+  const userType = this.mapRoleToUserType(this.role || '');
 
-  private async checkPinStatus() {
+  this.pinSetInFirestore = false;
+
+  console.log('[PIN] Checking trusted device', {
+    hasApartmentId: !!apartmentId,
+    hasUserId: !!userId,
+    hasDeviceId: !!deviceId,
+    userType
+  });
+
+  if (!apartmentId || !userId) {
+    console.warn('[PIN] Missing required information');
+    return;
+  }
+
+  try {
+    console.log('[PIN] Starting Firestore request');
+
+    const pinDoc =
+      await this.firestoreService.getTrustedDeviceInfo(
+        apartmentId,
+        userType,
+        userId,
+        deviceId
+      );
+
+    this.pinSetInFirestore = !!pinDoc?.pin;
+
+    console.log('[PIN] Firestore request completed', {
+      pinConfigured: this.pinSetInFirestore
+    });
+
+  } catch (error) {
+    console.error('[PIN] Trusted device lookup failed', error);
+    throw error;
+  }
+}
+
+  private async checkPinStatusOLD() {
     const apartmentId = this.apartmentId;
     const userId = localStorage.getItem('userId');
     const deviceId = localStorage.getItem('apt3m_deviceId') || 'default';
@@ -520,18 +564,24 @@ async onPhoneNumberChange(): Promise<boolean> {
 
     await this.checkPinStatus();
 
-    // Ensure this is still the current lookup
+   
+    // Verify phone number has not changed
     if ((this.phoneNumber || '').trim() !== phone) {
       this.pendingAdminData = null;
       return false;
     }
 
+    // User profile is ready for OTP
     this.blnSendOTP = true;
     this.userNotFound = false;
 
-    console.log('[LOGIN] User lookup completed');
+    console.log('[LOGIN] User lookup completed', {
+      hasPendingAdminData: !!this.pendingAdminData,
+      blnSendOTP: this.blnSendOTP
+    });
 
     return true;
+
 
   } catch (error: any) {
     console.error('[LOGIN] User lookup failed', {
@@ -1283,13 +1333,19 @@ async onPhoneNumberChange(): Promise<boolean> {
     this.userNotFound = false;
   }
 
-  
+
 async sendOTP(): Promise<void> {
-  if (this.sendingOtp) return;
+  console.log('[OTP DEBUG] sendOTP invoked', {
+    sendingOtp: this.sendingOtp
+  });
+
+  if (this.sendingOtp) {
+    console.warn('[OTP] Request already in progress');
+    return;
+  }
 
   const phone = (this.phoneNumber || '').trim();
 
-  // Step 1: Validate phone number
   if (!/^\d{10}$/.test(phone)) {
     this.modalService.show(
       'Please enter a valid 10-digit phone number.',
@@ -1299,45 +1355,40 @@ async sendOTP(): Promise<void> {
   }
 
   this.sendingOtp = true;
-
-  // Reset previous OTP session
   this.sessionId = '';
   this.otpSent = false;
 
   try {
-    console.log('[LOGIN] Starting OTP login');
+    console.log('[LOGIN] Starting user lookup');
 
-    // Step 2: Load user details from Firestore
     const userFound = await this.onPhoneNumberChange();
+    const adminData = this.pendingAdminData as Admin | null;
 
-    // Read updated user data after async lookup
-    const adminData =
-      this.pendingAdminData as Admin | null;
+    console.log('[LOGIN] Lookup completed', {
+      userFound,
+      hasAdminData: !!adminData,
+      userNotFound: this.userNotFound,
+      phoneNumberNotFound: this.phoneNumberNotFound
+    });
 
     if (!userFound || !adminData) {
       console.error('[LOGIN] User profile unavailable');
 
-      // onPhoneNumberChange may already show a
-      // specific error (locked/pending/not found).
-      if (this.userNotFound || this.phoneNumberNotFound) {
-        this.modalService.show(
-          'User not found. Please contact property management.',
-          'warning'
-        );
-      }
-
+      this.modalService.show(
+        this.userNotFound || this.phoneNumberNotFound
+          ? 'User not found. Please contact property management.'
+          : 'Unable to load login information. Please try again.',
+        'warning'
+      );
       return;
     }
 
-    // Step 3: Validate user ID
     const userId =
       adminData.userId ||
       adminData.flatOwnerId ||
       '';
 
     if (!userId) {
-      console.error('[LOGIN] User ID missing');
-
       this.modalService.show(
         'User information is incomplete. Please contact support.',
         'error'
@@ -1345,57 +1396,41 @@ async sendOTP(): Promise<void> {
       return;
     }
 
-    // Ensure user has not changed the phone number
     if ((this.phoneNumber || '').trim() !== phone) {
-      console.warn('[LOGIN] Phone changed during login');
+      console.warn('[LOGIN] Phone changed during lookup');
+      this.modalService.show(
+        'Phone number changed. Please try again.',
+        'warning'
+      );
       return;
     }
 
-    console.log('[LOGIN] User profile ready', {
-      role: adminData.role,
-      hasUserId: !!userId,
-      hasApartmentId: !!this.apartmentId,
-      hasPendingAdminData: !!this.pendingAdminData
+    console.log('[OTP] Calling Firebase sendOtp');
+
+    const res: any = await this.otpService.sendOtp(phone);
+
+    console.log('[OTP] Firebase response received', {
+      status: res?.Status,
+      hasDetails: !!res?.Details
     });
 
-    // Step 4: Send OTP through Firebase
-    console.log('[OTP] Sending OTP request');
-
-    const res: any =
-      await this.otpService.sendOtp(phone);
-
-    // Check phone again after network request
     if ((this.phoneNumber || '').trim() !== phone) {
-      console.warn('[OTP] Phone changed after request');
+      this.modalService.show(
+        'Phone number changed. Please try again.',
+        'warning'
+      );
       return;
     }
 
-    // Step 5: Handle OTP response
     if (res?.Status === 'Success' && res?.Details) {
       this.sessionId = String(res.Details);
       this.otpSent = true;
-
-        console.log('[OTP] After sending OTP', {
-        hasPendingAdminData: !!this.pendingAdminData,
-        role: this.pendingAdminData?.role,
-        hasSessionId: !!this.sessionId
-      });
-
-      console.log('[OTP] OTP sent successfully', {
-        hasSessionId: !!this.sessionId,
-        hasPendingAdminData: !!this.pendingAdminData
-      });
 
       this.modalService.show(
         'OTP sent successfully!',
         'success'
       );
-
     } else {
-      console.error('[OTP] OTP provider rejected request', {
-        status: res?.Status
-      });
-
       this.modalService.show(
         'Failed to send OTP. Please try again.',
         'error'
@@ -1403,10 +1438,7 @@ async sendOTP(): Promise<void> {
     }
 
   } catch (err: any) {
-    console.error('[OTP] Send OTP error', {
-      message: err?.message,
-      status: err?.status
-    });
+    console.error('[OTP] Send OTP error', err);
 
     this.modalService.show(
       'Unable to send OTP. Please try again.',
@@ -1415,8 +1447,10 @@ async sendOTP(): Promise<void> {
 
   } finally {
     this.sendingOtp = false;
+    console.log('[OTP] Request finished');
   }
 }
+
 
 
   async sendOTPOLD() {

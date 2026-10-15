@@ -67,9 +67,17 @@
       </ng-container>
 
       <ng-container *ngIf="selectedMethod === 'otp'">
-        <button class="btn otp-btn" (click)="sendOTP()" [disabled]="!phoneNumber || phoneNumber.length !== 10 || userNotFound || isAdminApproved === false" >
-          Send OTP
-        </button>
+       
+   
+      <button
+        type="button"
+        class="btn otp-btn"
+        (click)="sendOTP()"
+        [disabled]="sendingOtp || !phoneNumber || phoneNumber.trim().length !== 10">
+        {{ sendingOtp ? 'Sending OTP...' : 'Send OTP' }}
+      </button>
+
+
 
         <div *ngIf="otpSent" class="form-group otp-group">
           <label for="otp">Enter OTP</label>
