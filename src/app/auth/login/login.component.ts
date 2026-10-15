@@ -1102,6 +1102,7 @@ async selectMethod(method: 'face' | 'pin' | 'otp') {
 
   
 async sendOTP(): Promise<void> {
+  await this.firestoreService.testFirestoreConnection();
   if (this.sendingOtp) return;
 
   const phone = (this.phoneNumber || '').trim();

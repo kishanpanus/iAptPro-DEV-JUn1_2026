@@ -8,6 +8,7 @@ import { Admin, Apartment, ExtendedRole, FlatOwner } from './models/models';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as Papa from 'papaparse';
+import { getDocFromServer } from 'firebase/firestore';
 
 type UserType = 'superadmin' | 'admins' | 'flatOwners' | 'securityUsers';
 
@@ -1329,7 +1330,24 @@ async getApartmentById(apartmentId: string): Promise<any> {
   return docSnap.exists() ? docSnap.data() : null;
 }
 
+async testFirestoreConnection(): Promise<void> {
+  console.log('[DB TEST] Starting server connection test');
 
+  try {
+    const ref = doc(this.firestore, 'userIndex', 'TEST_CONNECTION');
+
+    const snap = await getDocFromServer(ref);
+
+    console.log('[DB TEST] Server responded', {
+      exists: snap.exists()
+    });
+  } catch (error: any) {
+    console.error('[DB TEST] Firestore failed', {
+      code: error?.code,
+      message: error?.message
+    });
+  }
+}
 
 }
 
