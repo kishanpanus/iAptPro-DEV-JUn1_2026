@@ -859,18 +859,28 @@ button:hover,
   }
   
   /* Mobile-specific override */
-  @media (max-width: 768px) {
-    .mobile-header {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 1000;
-      background: #ffffff;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-      overflow: visible !important; 
-    }
+@media (max-width: 768px) {
+  .mobile-header {
+    position: fixed;
+    top: env(safe-area-inset-top, 0px);
+    left: 0;
+    right: 0;
+
+    padding: 12px 16px;
+
+    background: #ffffff;
+    z-index: 1000;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    box-sizing: border-box;
+    overflow: visible !important;
+
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   }
+}
   
   .modal-backdrop {
     position: fixed;
@@ -1535,4 +1545,10 @@ button:hover,
 }
 .modal-content, .modal-body {
   -webkit-overflow-scrolling: touch;
+}
+@media (max-width: 767px) {
+  .floating-menu {
+    left: auto;
+    right: 12px;
+  }
 }
