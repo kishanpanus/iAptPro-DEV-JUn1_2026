@@ -9,6 +9,8 @@ import { provideRouter } from '@angular/router';
 import { routes } from './app/app.routes';
 import { AppModule } from './app/app.module';
 import { importProvidersFrom } from '@angular/core';
+import { getApp } from 'firebase/app';
+import { initializeFirestore } from 'firebase/firestore';
 
 const app = initializeApp(environment.firebaseConfig);
 const auth = getAuth(app);
@@ -17,10 +19,16 @@ export { auth };
 
 bootstrapApplication(AppComponent, {
   providers: [
-    provideFirebaseApp(() => initializeApp(environment.firebaseConfig)),
-    provideAuth(() => getAuth()), // ✅ this is correct here
-    provideFirestore(() => getFirestore()), // ✅ correct here
-    importProvidersFrom(AppModule), // 
+    provideFirebaseApp(() =>
+      initializeApp(environment.firebaseConfig)
+    ),
+    provideAuth(() => getAuth()),
+    provideFirestore(() =>
+  initializeFirestore(getApp(), {
+    experimentalForceLongPolling: true
+  })
+),
+    importProvidersFrom(AppModule),
   ]
 });
 

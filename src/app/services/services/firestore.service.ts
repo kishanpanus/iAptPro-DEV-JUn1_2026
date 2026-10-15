@@ -1079,10 +1079,21 @@ async setUserIndex(entry: UserIndexEntry): Promise<void> {
 
 async getUserByPhoneNumber(
   phoneNumber: string
-): Promise<{ userData: any; role: ExtendedRole; apartmentId?: string, flatOwnerId?: string; } | null> {
+): Promise<{
+  userData: any;
+  role: ExtendedRole;
+  apartmentId?: string;
+  flatOwnerId?: string;
+} | null> {
+  console.log('[FIRESTORE] Before userIndex getDoc');
   // 🔍 Step 1: Lookup in userIndex
   const userIndexRef = doc(this.firestore, 'userIndex', phoneNumber);
+  console.log('[DB] Before userIndex getDoc');
   const indexSnap = await getDoc(userIndexRef);
+  console.log('[DB] After userIndex getDoc');
+   console.log('[FIRESTORE] After userIndex getDoc', {
+    exists: indexSnap.exists()
+  });
 
   if (!indexSnap.exists()) return null;
 
@@ -1118,7 +1129,11 @@ async getUserByPhoneNumber(
   // 🔄 Query apartment subcollection
   const userCollectionRef = collection(this.firestore, `apartments/${apartmentId}/${source}`);
   const userQuery = query(userCollectionRef, where('phoneNumber', '==', phoneNumber));
+  console.log('[FIRESTORE] Before apartment getDocs');
   const querySnap = await getDocs(userQuery);
+  console.log('[FIRESTORE] After apartment getDocs', {
+  empty: querySnap.empty
+});
 
   if (querySnap.empty) return null;
 
