@@ -228,6 +228,13 @@ body {
   border-bottom: none;
   position: relative;
 }
+
+/* iPhone Safe Area fix */
+@supports (padding-top: env(safe-area-inset-top)) {
+  .top-bar {
+    padding-top: calc(8px + env(safe-area-inset-top));
+  }
+}
   .logo-top-left {
     flex-shrink: 0;
   }

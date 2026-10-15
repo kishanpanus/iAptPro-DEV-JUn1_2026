@@ -96,7 +96,7 @@ verifyingOtp = false;
     private modalService: ModalService, private faio: FingerprintAIO,private otpService: OtpService) {}
  
   async ngOnInit() {
-   // localStorage.clear();
+    localStorage.clear();
     const biometricEnabled = localStorage.getItem('biometricLoginEnabled');
     const remembered = localStorage.getItem('apt3m_remembered');
     const userStr = localStorage.getItem('user');
@@ -128,23 +128,14 @@ verifyingOtp = false;
     }
   }
 
-  onPhoneInputChange(): void {
-  this.isPhoneValid = /^\d{10}$/.test(
-    (this.phoneNumber || '').trim()
-  );
-
-  if (!this.isPhoneValid) {
-    this.selectedMethod = null;
+  async onPhoneInputChange() {
+    this.isPhoneValid = this.phoneNumber.trim().length === 10;
+    if (!this.isPhoneValid) {
+      this.selectedMethod = null; 
+    } else {
+      await this.onPhoneNumberChange();
+    }
   }
-}
-  // async onPhoneInputChange() {
-  //   this.isPhoneValid = this.phoneNumber.trim().length === 10;
-  //   if (!this.isPhoneValid) {
-  //     this.selectedMethod = null; 
-  //   } else {
-  //     await this.onPhoneNumberChange();
-  //   }
-  // }
 
   onPhoneNumberEntered() {
     if (this.phoneNumber.length === 10) {
@@ -155,61 +146,22 @@ verifyingOtp = false;
     }
   }
   
-  selectMethod(method: 'face' | 'pin' | 'otp') {
-    if (this.userNotFound) {
+async selectMethod(method: 'face' | 'pin' | 'otp') {
+  this.selectedMethod = method;
+  this.otpSent = false;
+
+  if (method === 'pin') {
+    const userFound = await this.onPhoneNumberChange(true);
+
+    if (!userFound) {
       this.selectedMethod = null;
       return;
     }
-    this.selectedMethod = method;
-    this.otpSent = false;
-  }
-  
-  
-private async checkPinStatus(): Promise<void> {
-  const apartmentId = this.apartmentId;
-  const userId = localStorage.getItem('userId');
-  const deviceId =
-    localStorage.getItem('apt3m_deviceId') || 'default';
-  const userType = this.mapRoleToUserType(this.role || '');
-
-  this.pinSetInFirestore = false;
-
-  console.log('[PIN] Checking trusted device', {
-    hasApartmentId: !!apartmentId,
-    hasUserId: !!userId,
-    hasDeviceId: !!deviceId,
-    userType
-  });
-
-  if (!apartmentId || !userId) {
-    console.warn('[PIN] Missing required information');
-    return;
-  }
-
-  try {
-    console.log('[PIN] Starting Firestore request');
-
-    const pinDoc =
-      await this.firestoreService.getTrustedDeviceInfo(
-        apartmentId,
-        userType,
-        userId,
-        deviceId
-      );
-
-    this.pinSetInFirestore = !!pinDoc?.pin;
-
-    console.log('[PIN] Firestore request completed', {
-      pinConfigured: this.pinSetInFirestore
-    });
-
-  } catch (error) {
-    console.error('[PIN] Trusted device lookup failed', error);
-    throw error;
   }
 }
+  
 
-  private async checkPinStatusOLD() {
+  private async checkPinStatus() {
     const apartmentId = this.apartmentId;
     const userId = localStorage.getItem('userId');
     const deviceId = localStorage.getItem('apt3m_deviceId') || 'default';
@@ -392,226 +344,10 @@ private async checkPinStatus(): Promise<void> {
   }
   
   
-async onPhoneNumberChange(): Promise<boolean> {
-  const phone = (this.phoneNumber || '').trim();
 
-  this.phoneNumberNotFound = false;
-  this.userNotFound = false;
-  this.isAdminApproved = true;
-
-  // Clear stale user context before starting a new lookup
-  this.pendingAdminData = null;
-  this.blnSendOTP = false;
-
-  if (!/^\d{10}$/.test(phone)) {
-    return false;
-  }
-
-  try {
-    console.log('[LOGIN] Starting user lookup');
-
-    const result =
-      await this.firestoreService.getUserByPhoneNumber(phone);
-
-    // Prevent an older async lookup from overwriting
-    // the context for a different phone number.
-    if ((this.phoneNumber || '').trim() !== phone) {
-      console.warn('[LOGIN] Phone changed during lookup');
-      return false;
-    }
-
-    if (!result) {
-      this.userNotFound = true;
-      this.phoneNumberNotFound = true;
-
-      console.warn('[LOGIN] User not found');
-      return false;
-    }
-
-    const {
-      userData,
-      role,
-      apartmentId,
-      flatOwnerId
-    } = result;
-
-    const resolvedUserId =
-      ('userId' in result && typeof result.userId === 'string'
-        ? result.userId
-        : '') ||
-      flatOwnerId ||
-      '';
-
-    const resolvedApartmentId = apartmentId || null;
-
-    if (!resolvedUserId) {
-      console.error('[LOGIN] Missing Firestore user ID', {
-        role
-      });
-
-      this.modalService.show(
-        'User ID is missing. Please contact support.',
-        'error'
-      );
-      return false;
-    }
-
-    // Check apartment lock status when applicable
-    if (resolvedApartmentId) {
-      const apartmentData =
-        await this.firestoreService.getApartmentById(
-          resolvedApartmentId
-        );
-
-      if (apartmentData?.locked) {
-        this.isAdminApproved = false;
-
-        this.modalService.show(
-          'Access denied. Your apartment is locked by SuperAdmin.\nReason: ' +
-          (apartmentData.lockedReason || 'No reason specified.'),
-          'warning'
-        );
-
-        return false;
-      }
-    } else if (role !== 'superadmin') {
-      console.error('[LOGIN] Apartment ID missing', {
-        role
-      });
-
-      this.modalService.show(
-        'Apartment information is missing.',
-        'error'
-      );
-      return false;
-    }
-
-    // Check account approval
-    const normalizedRole = String(role || '').toLowerCase();
-
-    if (
-      normalizedRole !== 'superadmin' &&
-      !userData.approved
-    ) {
-      this.isAdminApproved = false;
-
-      this.modalService.show(
-        'Your registration is pending SuperAdmin approval.',
-        'warning'
-      );
-
-      return false;
-    }
-
-    if (userData.isActive === false) {
-      this.modalService.show(
-        'Your account is inactive. Please contact support.',
-        'warning'
-      );
-      return false;
-    }
-
-    // Build complete user profile
-    const adminData: Admin = {
-      name:
-        userData.adminName?.trim() ||
-        userData.name?.trim() ||
-        'Admin',
-
-      role: role as ExtendedRole,
-      apartmentName: userData.apartmentName || '',
-      approvalDate: userData.approvalDate || '',
-      approvalStatus: userData.approvalStatus || '',
-      approved: userData.approved ?? true,
-      block: userData.block || '',
-      creationDate:
-        userData.creationDate || new Date().toISOString(),
-      email: userData.email || '',
-      flatNumber:
-        userData.flatNumber || userData.flat || '',
-      flatOwnerId: flatOwnerId || '',
-      phone: userData.phone || userData.phoneNumber || phone,
-      isActive: userData.isActive ?? true,
-      userId: resolvedUserId
-    };
-
-    // Save component state only after validation
-    this.role = role;
-    this.apartmentId = resolvedApartmentId;
-    this.apartmentName = adminData.apartmentName;
-    this.pendingAdminData = adminData;
-
-    this.currentUser = {
-      role,
-      apartment: resolvedApartmentId,
-      flat: adminData.flatNumber,
-      name: adminData.name,
-      phoneNumber: adminData.phone
-    } as any;
-
-    console.log('[LOGIN] Pending profile prepared', {
-      role,
-      hasUserId: true,
-      hasApartmentId: !!resolvedApartmentId,
-      hasPendingAdminData: !!this.pendingAdminData
-    });
-
-    // Preserve existing session-related values
-    localStorage.setItem('userId', resolvedUserId);
-    localStorage.setItem(
-      'userType',
-      this.mapRoleToUserType(role)
-    );
-    localStorage.setItem(
-      'apartmentId',
-      resolvedApartmentId || ''
-    );
-    localStorage.setItem(
-      'user',
-      JSON.stringify(this.currentUser)
-    );
-
-    //await this.checkPinStatus();
-
-   
-    // Verify phone number has not changed
-    if ((this.phoneNumber || '').trim() !== phone) {
-      this.pendingAdminData = null;
-      return false;
-    }
-
-    // User profile is ready for OTP
-    this.blnSendOTP = true;
-    this.userNotFound = false;
-
-    console.log('[LOGIN] User lookup completed', {
-      hasPendingAdminData: !!this.pendingAdminData,
-      blnSendOTP: this.blnSendOTP
-    });
-
-    return true;
-
-
-  } catch (error: any) {
-    console.error('[LOGIN] User lookup failed', {
-      code: error?.code,
-      message: error?.message
-    });
-
-    this.pendingAdminData = null;
-    this.blnSendOTP = false;
-
-    this.modalService.show(
-      'Unable to load your account information. Please try again.',
-      'error'
-    );
-
-    return false;
-  }
-}
-
-
-  async onPhoneNumberChangeOLD(): Promise<boolean> {
+  async onPhoneNumberChange(
+  checkPin: boolean = true
+): Promise<boolean> {
     this.isAdminApproved =  true;
     const phone = this.phoneNumber.trim();
     this.phoneNumberNotFound = false;
@@ -628,7 +364,7 @@ async onPhoneNumberChange(): Promise<boolean> {
     }
   
     const { userData, role, apartmentId, flatOwnerId } = result;
-   
+  
     this.role = role;
     this.apartmentId = apartmentId || null;
     this.apartmentName = userData.apartmentName || '';
@@ -686,7 +422,9 @@ async onPhoneNumberChange(): Promise<boolean> {
     localStorage.setItem('apartmentId', this.apartmentId || '');
     localStorage.setItem('user', JSON.stringify(this.currentUser));
   
+     if (checkPin) {
     await this.checkPinStatus();
+  }
     this.blnSendOTP = true;
     this.userNotFound = false;
   
@@ -1342,16 +1080,9 @@ async onPhoneNumberChange(): Promise<boolean> {
     this.userNotFound = false;
   }
 
-
+  
 async sendOTP(): Promise<void> {
-  console.log('[OTP DEBUG] sendOTP invoked', {
-    sendingOtp: this.sendingOtp
-  });
-
-  if (this.sendingOtp) {
-    console.warn('[OTP] Request already in progress');
-    return;
-  }
+  if (this.sendingOtp) return;
 
   const phone = (this.phoneNumber || '').trim();
 
@@ -1368,48 +1099,26 @@ async sendOTP(): Promise<void> {
   this.otpSent = false;
 
   try {
-    console.log('[LOGIN] Starting user lookup');
+    console.log('[OTP] Starting user lookup');
 
+    // false = do not perform PIN lookup during OTP login
     const userFound = await this.withTimeout(
-      this.onPhoneNumberChange(),
-      'User lookup'
+      this.onPhoneNumberChange(false),
+      'User lookup',
+      15000
     );
-    const adminData = this.pendingAdminData as Admin | null;
 
-    console.log('[LOGIN] Lookup completed', {
-      userFound,
-      hasAdminData: !!adminData,
-      userNotFound: this.userNotFound,
-      phoneNumberNotFound: this.phoneNumberNotFound
-    });
-
-    if (!userFound || !adminData) {
-      console.error('[LOGIN] User profile unavailable');
-
+    if (!userFound || !this.pendingAdminData) {
       this.modalService.show(
-        this.userNotFound || this.phoneNumberNotFound
+        this.userNotFound
           ? 'User not found. Please contact property management.'
-          : 'Unable to load login information. Please try again.',
+          : 'Unable to load user information.',
         'warning'
       );
       return;
     }
 
-    const userId =
-      adminData.userId ||
-      adminData.flatOwnerId ||
-      '';
-
-    if (!userId) {
-      this.modalService.show(
-        'User information is incomplete. Please contact support.',
-        'error'
-      );
-      return;
-    }
-
     if ((this.phoneNumber || '').trim() !== phone) {
-      console.warn('[LOGIN] Phone changed during lookup');
       this.modalService.show(
         'Phone number changed. Please try again.',
         'warning'
@@ -1417,26 +1126,15 @@ async sendOTP(): Promise<void> {
       return;
     }
 
-    console.log('[OTP] Calling Firebase sendOtp');
+    console.log('[OTP] Calling OTP service');
 
-    //const res: any = await this.otpService.sendOtp(phone);
     const res: any = await this.withTimeout(
       this.otpService.sendOtp(phone),
-      'OTP API'
+      'OTP API',
+      15000
     );
 
-    console.log('[OTP] Firebase response received', {
-      status: res?.Status,
-      hasDetails: !!res?.Details
-    });
-
-    if ((this.phoneNumber || '').trim() !== phone) {
-      this.modalService.show(
-        'Phone number changed. Please try again.',
-        'warning'
-      );
-      return;
-    }
+    console.log('[OTP] Response:', res?.Status);
 
     if (res?.Status === 'Success' && res?.Details) {
       this.sessionId = String(res.Details);
@@ -1448,18 +1146,18 @@ async sendOTP(): Promise<void> {
       );
     } else {
       this.modalService.show(
-        'Failed to send OTP. Please try again.',
+        res?.Details || 'Failed to send OTP.',
         'error'
       );
     }
 
   } catch (err: any) {
-     console.error('[OTP] Send OTP error:', err);
+    console.error('[OTP] Error:', err);
 
-  this.modalService.show(
-    err?.message || 'Unable to send OTP. Please try again.',
-    'error'
-  );
+    this.modalService.show(
+      err?.message || 'Unable to send OTP.',
+      'error'
+    );
 
   } finally {
     this.sendingOtp = false;
@@ -1467,9 +1165,7 @@ async sendOTP(): Promise<void> {
   }
 }
 
-
-
-  async sendOTPOLD() {
+  async sendOTPOCt10() {
   if (this.userNotFound) {
     this.modalService.show('User not found. Please contact your property management.', 'warning');
     return;
@@ -1485,43 +1181,7 @@ async sendOTP(): Promise<void> {
   this.sendingOtp = true;
 
   try {
-    // Ensure user information is loaded before sending OTP.
-      this.pendingAdminData = null;
-
-      const userFound = await this.onPhoneNumberChange();
-
-      if (!userFound || !this.pendingAdminData) {
-        console.error('[LOGIN] Missing user information');
-
-        this.modalService.show(
-          'Unable to load login information. Please try again.',
-          'error'
-        );
-
-        return;
-      }
-
-      const adminData = this.pendingAdminData as Admin | null;
-
-      if (!adminData) {
-      console.error('[LOGIN] pendingAdminData is missing');
-
-      this.modalService.show(
-        'Unable to load login information. Please try again.',
-        'error'
-      );
-      return;
-      }
-
-      console.log('[LOGIN] User loaded successfully', {
-      role: adminData.role,
-      hasUserId: !!(
-        adminData.userId ||
-        adminData.flatOwnerId
-      )
-      });
-
-      const res: any = await this.otpService.sendOtp(phone);
+    const res: any = await this.otpService.sendOtp(phone);
     // 2Factor success shape: { Status: 'Success', Details: '<sessionId>' }
     if (res?.Status === 'Success' && res?.Details) {
       this.sessionId = res.Details;
@@ -1543,12 +1203,6 @@ async sendOTP(): Promise<void> {
 
 
 async verifyOTP(forceResetPin: boolean = false) {
-
-  console.log('[OTP] Before verification', {
-  hasPendingAdminData: !!this.pendingAdminData,
-  hasSessionId: !!this.sessionId
-});
-
   const otp = (this.otpCode || '').trim();
 
   if (!otp) {
@@ -1619,16 +1273,6 @@ async verifyOTP(forceResetPin: boolean = false) {
 
     console.log('[OTP] OTP verified successfully');
 
-    console.log('[LOGIN] Checking login context', {
-  hasPendingAdminData: !!this.pendingAdminData,
-  role: this.pendingAdminData?.role,
-  hasUserId: !!(
-    this.pendingAdminData?.userId ||
-    this.pendingAdminData?.flatOwnerId
-  ),
-  hasApartmentId: !!this.apartmentId
-});
-
     // STEP 3: Complete resident login
     try {
       console.log('[LOGIN] Starting post-OTP login');
@@ -1669,7 +1313,27 @@ async verifyOTP(forceResetPin: boolean = false) {
   }
 }
 
+private async withTimeout<T>(
+  promise: Promise<T>,
+  label: string,
+  ms = 15000
+): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
 
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<never>((_, reject) => {
+        timer = setTimeout(
+          () => reject(new Error(`${label} timed out`)),
+          ms
+        );
+      })
+    ]);
+  } finally {
+    if (timer !== undefined) clearTimeout(timer);
+  }
+}
   async sendOTP1() {
     // Check if user exists
     if (this.userNotFound) {
@@ -1711,28 +1375,7 @@ async verifyOTP(forceResetPin: boolean = false) {
     }
   }
   
-private async withTimeout<T>(
-  operation: Promise<T>,
-  label: string,
-  timeoutMs = 15000
-): Promise<T> {
-  let timer: ReturnType<typeof setTimeout> | undefined;
 
-  try {
-    return await Promise.race([
-      operation,
-      new Promise<never>((_, reject) => {
-        timer = setTimeout(() => {
-          reject(new Error(`${label} timed out`));
-        }, timeoutMs);
-      })
-    ]);
-  } finally {
-    if (timer !== undefined) {
-      clearTimeout(timer);
-    }
-  }
-}
   // sendOTP() {
   //   if (this.userNotFound) {
   //     this.modalService.show('User not found. Please contact your property management.', 'warning');

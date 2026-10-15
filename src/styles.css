@@ -273,3 +273,10 @@ details > *:not(summary) {
 .policy-page ul li {
   margin: 0.5rem 0;
 }
+
+/* Respect iPhone status bar */
+@supports (padding: env(safe-area-inset-top)) {
+  body {
+    padding-top: env(safe-area-inset-top);
+  }
+}
