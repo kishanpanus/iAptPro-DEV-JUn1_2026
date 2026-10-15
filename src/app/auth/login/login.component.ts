@@ -128,14 +128,23 @@ verifyingOtp = false;
     }
   }
 
-  async onPhoneInputChange() {
-    this.isPhoneValid = this.phoneNumber.trim().length === 10;
-    if (!this.isPhoneValid) {
-      this.selectedMethod = null; 
-    } else {
-      await this.onPhoneNumberChange();
-    }
+  onPhoneInputChange(): void {
+  this.isPhoneValid = /^\d{10}$/.test(
+    (this.phoneNumber || '').trim()
+  );
+
+  if (!this.isPhoneValid) {
+    this.selectedMethod = null;
   }
+}
+  // async onPhoneInputChange() {
+  //   this.isPhoneValid = this.phoneNumber.trim().length === 10;
+  //   if (!this.isPhoneValid) {
+  //     this.selectedMethod = null; 
+  //   } else {
+  //     await this.onPhoneNumberChange();
+  //   }
+  // }
 
   onPhoneNumberEntered() {
     if (this.phoneNumber.length === 10) {
