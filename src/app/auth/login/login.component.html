@@ -69,13 +69,13 @@
       <ng-container *ngIf="selectedMethod === 'otp'">
        
    
-      <button
-        type="button"
-        class="btn otp-btn"
-        (click)="sendOTP()"
-        [disabled]="sendingOtp || !phoneNumber || phoneNumber.trim().length !== 10">
-        {{ sendingOtp ? 'Sending OTP...' : 'Send OTP' }}
-      </button>
+     <button
+  type="button"
+  class="btn otp-btn"
+  (click)="sendOTP()"
+  [disabled]="sendingOtp || !isPhoneValid">
+  {{ sendingOtp ? 'Sending OTP...' : 'Send OTP' }}
+</button>
 
 
 

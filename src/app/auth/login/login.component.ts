@@ -128,14 +128,23 @@ verifyingOtp = false;
     }
   }
 
-  async onPhoneInputChange() {
-    this.isPhoneValid = this.phoneNumber.trim().length === 10;
-    if (!this.isPhoneValid) {
-      this.selectedMethod = null; 
-    } else {
-      await this.onPhoneNumberChange();
-    }
+  onPhoneInputChange(): void {
+  this.isPhoneValid = /^\d{10}$/.test(
+    (this.phoneNumber || '').trim()
+  );
+
+  if (!this.isPhoneValid) {
+    this.selectedMethod = null;
   }
+}
+  // async onPhoneInputChange() {
+  //   this.isPhoneValid = this.phoneNumber.trim().length === 10;
+  //   if (!this.isPhoneValid) {
+  //     this.selectedMethod = null; 
+  //   } else {
+  //     await this.onPhoneNumberChange();
+  //   }
+  // }
 
   onPhoneNumberEntered() {
     if (this.phoneNumber.length === 10) {
@@ -562,7 +571,7 @@ async onPhoneNumberChange(): Promise<boolean> {
       JSON.stringify(this.currentUser)
     );
 
-    await this.checkPinStatus();
+    //await this.checkPinStatus();
 
    
     // Verify phone number has not changed
@@ -1361,7 +1370,10 @@ async sendOTP(): Promise<void> {
   try {
     console.log('[LOGIN] Starting user lookup');
 
-    const userFound = await this.onPhoneNumberChange();
+    const userFound = await this.withTimeout(
+      this.onPhoneNumberChange(),
+      'User lookup'
+    );
     const adminData = this.pendingAdminData as Admin | null;
 
     console.log('[LOGIN] Lookup completed', {
@@ -1407,7 +1419,11 @@ async sendOTP(): Promise<void> {
 
     console.log('[OTP] Calling Firebase sendOtp');
 
-    const res: any = await this.otpService.sendOtp(phone);
+    //const res: any = await this.otpService.sendOtp(phone);
+    const res: any = await this.withTimeout(
+      this.otpService.sendOtp(phone),
+      'OTP API'
+    );
 
     console.log('[OTP] Firebase response received', {
       status: res?.Status,
@@ -1438,12 +1454,12 @@ async sendOTP(): Promise<void> {
     }
 
   } catch (err: any) {
-    console.error('[OTP] Send OTP error', err);
+     console.error('[OTP] Send OTP error:', err);
 
-    this.modalService.show(
-      'Unable to send OTP. Please try again.',
-      'error'
-    );
+  this.modalService.show(
+    err?.message || 'Unable to send OTP. Please try again.',
+    'error'
+  );
 
   } finally {
     this.sendingOtp = false;
@@ -1695,7 +1711,28 @@ async verifyOTP(forceResetPin: boolean = false) {
     }
   }
   
+private async withTimeout<T>(
+  operation: Promise<T>,
+  label: string,
+  timeoutMs = 15000
+): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
 
+  try {
+    return await Promise.race([
+      operation,
+      new Promise<never>((_, reject) => {
+        timer = setTimeout(() => {
+          reject(new Error(`${label} timed out`));
+        }, timeoutMs);
+      })
+    ]);
+  } finally {
+    if (timer !== undefined) {
+      clearTimeout(timer);
+    }
+  }
+}
   // sendOTP() {
   //   if (this.userNotFound) {
   //     this.modalService.show('User not found. Please contact your property management.', 'warning');
