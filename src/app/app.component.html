@@ -1,6 +1,16 @@
 <!-- Show header only when not on login or enrollment pages -->
 <!-- Outer container for consistent layout -->
-<div class="top-bar"> 
+<div
+  class="top-bar"
+  *ngIf="
+    otpVerified &&
+    router.url !== '/' &&
+    !router.url.startsWith('/login') &&
+    !router.url.startsWith('/enrollment') &&
+    !router.url.startsWith('/set-pin') &&
+    !router.url.startsWith('/enter-pin')
+  "
+>
   <!-- Logo always visible -->
   <div class="logo-top-left"  *ngIf="otpVerified && (role === 'superadmin' || admin?.apartmentName)" >
     <a>
@@ -103,13 +113,22 @@
 
 
 <!-- Section Loader -->
-<ng-container *ngIf="isMobile; else desktopView">
-  <app-mobile-login *ngIf="router.url === '/'"></app-mobile-login>
-</ng-container>
 
-<ng-template #desktopView>
+<!-- Mobile login on the root route -->
+<!-- Mobile login only at root -->
+<app-mobile-login
+  *ngIf="isMobile && router.url === '/'">
+</app-mobile-login>
+
+<!-- Always keep Angular Router active -->
+<router-outlet></router-outlet>
+<!-- <ng-container *ngIf="isMobile; else desktopView">
+  <app-mobile-login *ngIf="router.url === '/'"></app-mobile-login>
+</ng-container> -->
+
+<!-- <ng-template #desktopView> -->
   <!-- <app-landing *ngIf="router.url === '/'"></app-landing> -->
-</ng-template>
+<!-- </ng-template> -->
 
 <!-- Always load routed views -->
-<router-outlet></router-outlet>
+<!-- <router-outlet></router-outlet> -->

@@ -275,8 +275,15 @@ details > *:not(summary) {
 }
 
 /* Respect iPhone status bar */
-@supports (padding: env(safe-area-inset-top)) {
-  body {
-    padding-top: env(safe-area-inset-top);
-  }
+/* Global layout */
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  overflow-x: hidden;
+}
+
+/* iPhone Safe Area */
+body {
+  padding-top: env(safe-area-inset-top, 0px);
 }

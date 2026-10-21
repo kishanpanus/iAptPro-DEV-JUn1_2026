@@ -224,9 +224,10 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 8px 16px;
+  margin: 0;
   background: #fff;
-  border-bottom: none;
   position: relative;
+  min-height: 65px;
 }
 
 /* iPhone Safe Area fix */
