@@ -11,7 +11,10 @@
   
   <div class="welcome-box" *ngIf="user?.name">
     <div class="welcome-header">
-      <span class="wave">👋</span>
+      <span class="wave">
+  <img src="assets/wave-icon.png" class="wave-icon" alt="Welcome">
+</span>
+       
       <h2>{{ getGreeting() }}, <span class="name">{{ user.name }}</span>
         <span class="role-badge">{{ user.role || 'Spouse' }}</span>
         <!-- <p class="today-date">📅 {{ today | date: 'fullDate' }}</p> -->

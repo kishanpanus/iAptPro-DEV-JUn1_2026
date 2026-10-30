@@ -220,7 +220,7 @@ body {
   } */
   
 .top-bar {
-  display: flex;
+    display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 8px 16px;
@@ -228,12 +228,13 @@ body {
   background: #fff;
   position: relative;
   min-height: 65px;
+  box-sizing: border-box;
 }
 
 /* iPhone Safe Area fix */
 @supports (padding-top: env(safe-area-inset-top)) {
   .top-bar {
-    padding-top: calc(8px + env(safe-area-inset-top));
+    padding-top: 8px;
   }
 }
   .logo-top-left {

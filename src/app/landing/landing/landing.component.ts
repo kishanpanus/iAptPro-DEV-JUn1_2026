@@ -27,26 +27,26 @@ sendingMessage = false;
 contactSuccess = false;
 contactError = false;
 
-  faqs = [
-    {
-      icon: '🔐',
-      question: 'How to reset my pin?',
-      answer: 'Go to the login screen, tap "Forgot PIN", and follow the OTP verification process.',
-      open: false
-    },
-    {
-      icon: '🏢',
-      question: 'Can I update my flat or block info?',
-      answer: 'Yes, contact your apartment admin or use the Profile > Edit section if enabled.',
-      open: false
-    },
-    {
-      icon: '🐞',
-      question: 'How do I report a bug?',
-      answer: 'Use the "Contact Support" form below or email us with details and screenshots.',
-      open: false
-    }
-  ];
+faqs = [
+  {
+    icon: 'assets/pin-reset-icon.png',
+    question: 'How to reset my pin?',
+    answer: 'Go to the login screen, tap "Forgot PIN" and follow the instructions.',
+    open: false
+  },
+  {
+    icon: 'assets/apartment-icon.png',
+    question: 'Can I update my flat or block info?',
+    answer: 'Yes, contact your apartment admin to update your details.',
+    open: false
+  },
+  {
+    icon: 'assets/bug-report-icon.png',
+    question: 'How do I report a bug?',
+    answer: 'Use the Contact Support form to report an issue.',
+    open: false
+  }
+];
   
   constructor(private router: Router,private elementRef: ElementRef,private cdr: ChangeDetectorRef, private http: HttpClient) {}
 

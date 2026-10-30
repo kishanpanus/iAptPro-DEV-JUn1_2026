@@ -1827,7 +1827,20 @@ input:focus {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
+.wave-icon {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  display: inline-block;
+  transform-origin: 70% 75%;
+  animation: waveAnimation 2s ease-in-out infinite;
+}
 
+@keyframes waveAnimation {
+  0%, 100% { transform: rotate(0deg); }
+  20%, 60% { transform: rotate(15deg); }
+  40%, 80% { transform: rotate(-10deg); }
+}
 
 
 

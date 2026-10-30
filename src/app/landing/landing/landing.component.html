@@ -11,7 +11,7 @@
     <a href="#contact">Contact</a>
     <!-- <button class="btn-login" (click)="goToLogin()">Login/Register   </button> -->
     <div class="dropdown">
-      <button class="btn-login">🔒 Login | Register</button>
+      <button class="btn-login"> 🔒Login | Register</button>
       <div class="dropdown-content">
         <a href="/login">Resident Login</a>
         <a href="/enrollment">Register Apartment</a>
@@ -34,18 +34,22 @@
 
     <!-- Floating sheet -->
     <nav class="floating-menu" [class.show]="isMenuOpen">
-      <a href="#features" (click)="closeMenu()">Features</a>
-      <a href="#pricing"  (click)="closeMenu()">Pricing</a>
-      <a href="#support"  (click)="closeMenu()">Support</a>
-      <a href="#contact"  (click)="closeMenu()">Contact</a>
+     <a href="#features" (click)="closeMenu()">Features</a>
+      <a href="#pricing" (click)="closeMenu()">Pricing</a>
+      <a href="#support" (click)="closeMenu()">Support</a>
+      <a href="#contact" (click)="closeMenu()">Contact</a>
       <!-- <button class="btn-login" (click)="goToLogin(); closeMenu()">Login/Register</button> -->
       <div class="dropdown">
-        <button class="btn-login">🔒 Login | Register</button>
-        <div class="dropdown-content">
-          <a href="/login">Resident Login</a>
-          <a href="/enrollment">Register Apartment</a>
-        </div>
-      </div>
+  <button class="btn-login">
+    <img src="assets/lock.png" class="lock-icon" alt="">
+    <span>Login | Register</span>
+  </button>
+
+  <div class="dropdown-content">
+    <a href="/login">Resident Login</a>
+    <a href="/enrollment">Register Apartment</a>
+  </div>
+</div>
       
     </nav>
   </div>
@@ -78,9 +82,9 @@
     <div class="circle-inner">
       <h5>Why Choose Apt3M?</h5>
       <ul class="circle-list">
-        <li>✔ Simple to Use</li>
-        <li>✔ No Setup Cost</li>
-        <li>✔ Secure & Private</li>
+       <li>Simple to Use</li>
+      <li>No Setup Cost</li>
+      <li>Secure &amp; Private</li>
       </ul>
     </div>
   </div>
@@ -116,21 +120,31 @@
 
 
 <section class="how-it-works">
+
   <div class="step">
-    <div class="icon">🏢</div>
+    <div class="icon">
+      <img src="assets/apartment-icon.png" alt="Apartment">
+    </div>
     <h4>Register Apartment</h4>
     <p>Create your apartment community in minutes.</p>
   </div>
+
   <div class="step">
-    <div class="icon">👥</div>
+    <div class="icon">
+      <img src="assets/residents-icon.png" alt="Residents">
+    </div>
     <h4>Invite Residents</h4>
     <p>Send secure access links to owners and tenants.</p>
   </div>
+
   <div class="step">
-    <div class="icon">📲</div>
+    <div class="icon">
+      <img src="assets/mobile-icon.png" alt="Mobile">
+    </div>
     <h4>Manage Digitally</h4>
     <p>From dues to gate passes, all in one place.</p>
   </div>
+
 </section>
 
 
@@ -138,15 +152,51 @@
 <!-- Features Section -->
 <section class="page-section" id="features">
   <h1>Everything You Need to Manage Your Apartment</h1>
-  <ul class="feature-list">
-    <li>📢 <strong>Centralized Announcements:</strong> Real-time building updates via push notifications.</li>
-    <li>🛠️ <strong>Maintenance Requests:</strong> Raise, track and resolve complaints with image support.</li>
-    <li>💳 <strong>Digital Payments:</strong> Pay dues via UPI with instant receipts.</li>
-    <li>🚪 <strong>Gate Pass System:</strong> QR-based visitor and delivery management.</li>
-    <li>🗳️ <strong>Polls and Voting:</strong> Engage residents in decision-making polls.</li>
-    <li>🛒 <strong>Marketplace:</strong> In-app buy/sell section for residents.</li>
-    <li>📂 <strong>Document Vault:</strong> Store and access bylaws, invoices and more.</li>
-  </ul>
+ <ul class="feature-list">
+
+  <li>
+    <img src="assets/announcement-icon.png" class="feature-icon" alt="">
+    <strong>Centralized Announcements:</strong>
+    Real-time building updates via notifications.
+  </li>
+
+  <li>
+    <img src="assets/maintenance-icon.png" class="feature-icon" alt="">
+    <strong>Maintenance Requests:</strong>
+    Raise, track and resolve complaints.
+  </li>
+
+  <li>
+    <img src="assets/payment-icon.png" class="feature-icon" alt="">
+    <strong>Digital Payments:</strong>
+    Pay dues via UPI with instant receipts.
+  </li>
+
+  <li>
+    <img src="assets/gatepass-icon.png" class="feature-icon" alt="">
+    <strong>Gate Pass System:</strong>
+    QR-based visitor and delivery management.
+  </li>
+
+  <li>
+    <img src="assets/voting-icon.png" class="feature-icon" alt="">
+    <strong>Polls and Voting:</strong>
+    Engage residents in decision-making polls.
+  </li>
+
+  <li>
+    <img src="assets/marketplace-icon.png" class="feature-icon" alt="">
+    <strong>Marketplace:</strong>
+    In-app buy/sell section for residents.
+  </li>
+
+  <li>
+    <img src="assets/document-icon.png" class="feature-icon" alt="">
+    <strong>Document Vault:</strong>
+    Store and access bylaws, invoices and more.
+  </li>
+
+</ul>
 </section>
 
 <!-- Pricing Section -->
@@ -204,7 +254,11 @@
 
   <div class="faq-item" *ngFor="let faq of faqs">
     <button (click)="faq.open = !faq.open" class="faq-question">
-      {{ faq.icon }} {{ faq.question }}
+     <img
+  [src]="faq.icon"
+  class="faq-icon"
+  alt=""
+/> {{ faq.question }}
     </button>
     <div class="faq-answer" *ngIf="faq.open">
       {{ faq.answer }}

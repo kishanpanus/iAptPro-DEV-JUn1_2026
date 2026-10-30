@@ -287,3 +287,17 @@ body {
 body {
   padding-top: env(safe-area-inset-top, 0px);
 }
+
+/* iOS emoji and icon font fallback */
+@supports (-webkit-touch-callout: none) {
+  .wave,
+  .card-icon,
+  .menu-icon,
+  .modal-icon {
+    font-family:
+      "Apple Color Emoji",
+      "Apple Symbols",
+      "Segoe UI Emoji",
+      sans-serif;
+  }
+}

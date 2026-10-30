@@ -1556,3 +1556,199 @@ button:hover,
     right: 12px;
   }
 }
+
+.floating-menu .btn-login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  width: 100%;
+  min-width: 0;
+  padding: 10px 8px;
+
+  box-sizing: border-box;
+  white-space: nowrap;
+  font-size: 14px;
+}
+
+.floating-menu .lock-icon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.floating-menu .dropdown {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.circle-list {
+  list-style: none;
+  padding: 0;
+}
+
+.circle-list li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.circle-list li::before {
+  content: "";
+  display: inline-block;
+  width: 7px;
+  height: 13px;
+  border: solid #22c55e;
+  border-width: 0 3px 3px 0;
+  transform: rotate(45deg);
+  flex-shrink: 0;
+}
+
+.how-it-works .icon img {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto;
+}
+
+.feature-list {
+  list-style: none;
+  padding: 0;
+}
+
+.feature-list li {
+  display: list-item;
+  margin-bottom: 16px;
+  line-height: 1.6;
+}
+
+.feature-icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+.faq-icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  vertical-align: middle;
+  margin-right: 10px;
+}
+/* Modern Mobile Menu */
+.floating-menu {
+  position: absolute;
+  top: 100%;
+  right: 12px;
+  width: 240px;
+  max-width: calc(100vw - 24px);
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+}
+
+/* Menu links */
+.floating-menu > a {
+  display: block;
+  padding: 12px 16px;
+  margin-bottom: 4px;
+  border-radius: 8px;
+  text-align: left;
+  font-size: 15px;
+  font-weight: 500;
+  color: #333;
+  text-decoration: none;
+  transition: background 0.2s ease;
+}
+
+/* Hover */
+.floating-menu > a:hover,
+.floating-menu > a:focus-visible {
+  background: #eef4ff;
+  color: #1565c0;
+}
+
+/* Login/Register button */
+.floating-menu .btn-login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 10px;
+  background: linear-gradient(135deg, #1976d2, #0d47a1);
+  color: white;
+  border: none;
+  border-radius: 9px;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+/* Lock icon */
+.floating-menu .lock-icon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+/* Login button hover */
+.floating-menu .btn-login:hover {
+  background: #0d47a1;
+}
+/* Mobile menu links */
+.floating-menu > a {
+  position: relative;
+  display: block;
+  width: fit-content;
+  margin: 0 auto;
+  padding: 12px 8px;
+  text-decoration: none;
+  color: #333;
+  transition: color 0.3s ease;
+}
+
+/* Animated blue underline */
+.floating-menu > a::after {
+  content: "";
+  position: absolute;
+  bottom: 5px;
+  left: 50%;
+  width: 0;
+  height: 3px;
+  background: #1976d2;
+  border-radius: 4px;
+  transform: translateX(-50%);
+  transition: width 0.3s ease;
+}
+
+/* Show underline when selected */
+.floating-menu > a:focus-visible::after,
+.floating-menu > a:active::after {
+  width: 80%;
+  animation: blueGlow 0.8s ease-in-out;
+}
+
+/* Blue blinking glow */
+@keyframes blueGlow {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 3px #1976d2;
+  }
+
+  50% {
+    opacity: 0.4;
+    box-shadow: 0 0 10px #2196f3;
+  }
+}
