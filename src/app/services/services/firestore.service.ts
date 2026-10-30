@@ -8,8 +8,10 @@ import { Admin, Apartment, ExtendedRole, FlatOwner } from './models/models';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as Papa from 'papaparse';
-import { getDocFromServer } from 'firebase/firestore';
-
+  import {
+  getDocFromCache,
+  getDocFromServer
+} from 'firebase/firestore';
 type UserType = 'superadmin' | 'admins' | 'flatOwners' | 'securityUsers';
 
 export interface UserIndexEntry {
@@ -122,6 +124,33 @@ export class FirestoreService {
   //   return null;
   // }
   
+
+
+async testFirestoreDiagnostics(): Promise<void> {
+  console.log('[TEST] Starting direct server test');
+
+  const ref = doc(
+    this.firestore,
+    'userIndex',
+    'TEST_CONNECTION'
+  );
+
+  try {
+    console.log('[TEST] Before server getDoc');
+
+    const result = await getDocFromServer(ref);
+
+    console.log('[TEST] Server responded', {
+      exists: result.exists()
+    });
+
+  } catch (error: any) {
+    console.error('[TEST] Server failed', {
+      code: error?.code,
+      message: error?.message
+    });
+  }
+}
   async getOtpApiKey(): Promise<string> {
     try {
       const docRef = doc(this.firestore, 'appConfig/otpConfig');
@@ -137,6 +166,7 @@ export class FirestoreService {
       throw error;
     }
   }
+  
   
   async getAdminByPhone(phone: string) {
     const adminsRef = collection(this.firestore, 'admins');
@@ -1330,22 +1360,23 @@ async getApartmentById(apartmentId: string): Promise<any> {
   return docSnap.exists() ? docSnap.data() : null;
 }
 
-async testFirestoreConnection(): Promise<void> {
-  console.log('[DB TEST] Starting server connection test');
+async testFirestoreConnection() {
+  console.log('[TEST] Starting direct Firestore test');
 
   try {
-    const ref = doc(this.firestore, 'userIndex', 'TEST_CONNECTION');
+    const db = this.getFirestore();
 
-    const snap = await getDocFromServer(ref);
+    const docRef = doc(db, 'userIndex', 'TEST_CONNECTION');
 
-    console.log('[DB TEST] Server responded', {
-      exists: snap.exists()
-    });
-  } catch (error: any) {
-    console.error('[DB TEST] Firestore failed', {
-      code: error?.code,
-      message: error?.message
-    });
+    console.log('[TEST] Before getDocFromServer');
+
+    const result = await getDocFromServer(docRef);
+
+    console.log('[TEST] Firestore connected successfully');
+    console.log('[TEST] Document exists:', result.exists());
+
+  } catch (error) {
+    console.error('[TEST] Firestore connection failed:', error);
   }
 }
 

@@ -12,7 +12,10 @@ import { ModalService } from '../../services/services/model.service';
 import { Admin, ExtendedRole } from '../../services/services/models/models';
 import { FingerprintAIO } from '@awesome-cordova-plugins/fingerprint-aio/ngx';
 import { OtpService } from '../../otp.service';
-
+  import {
+  getDocFromCache,
+  getDocFromServer
+} from 'firebase/firestore';
 
 // interface UserData {
 //   role: string;
@@ -1102,6 +1105,22 @@ async selectMethod(method: 'face' | 'pin' | 'otp') {
 
   
 async sendOTP(): Promise<void> {
+  console.log('[TEST] Starting Firestore server request');
+
+const db = this.firestoreService.getFirestore();
+
+const testRef = doc(db, 'userIndex', this.phoneNumber);
+
+getDocFromServer(testRef)
+  .then(snapshot => {
+    console.log('[TEST] Firestore server responded:', snapshot.exists());
+  })
+  .catch(error => {
+    console.error('[TEST] Firestore error:', {
+      code: error.code,
+      message: error.message
+    });
+  });
   await this.firestoreService.testFirestoreConnection();
   if (this.sendingOtp) return;
 
@@ -1120,6 +1139,10 @@ async sendOTP(): Promise<void> {
   this.otpSent = false;
 
   try {
+    console.log('[OTP] Starting Firestore diagnostics');
+
+await this.firestoreService.testFirestoreDiagnostics();
+
     console.log('[OTP] Starting user lookup');
 
     // false = do not perform PIN lookup during OTP login

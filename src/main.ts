@@ -5,6 +5,7 @@ import { importProvidersFrom } from '@angular/core';
 import { AppComponent } from './app/app.component';
 import { AppModule } from './app/app.module';
 import { environment } from './app/environment/environment';
+import { setLogLevel } from 'firebase/firestore';
 
 // AngularFire
 import {
@@ -25,7 +26,9 @@ import {
 } from 'firebase/app';
 
 import {
-  getAuth
+  getAuth,
+  initializeAuth,
+  browserLocalPersistence
 } from 'firebase/auth';
 
 import {
@@ -39,10 +42,20 @@ import { Capacitor } from '@capacitor/core';
 // --------------------------------------------------
 // 1. Initialize Firebase once for all platforms
 // --------------------------------------------------
+setLogLevel('debug');
+//const app = initializeApp(environment.firebaseConfig);
+
+//const auth = getAuth(app);
+const platform = Capacitor.getPlatform();
 
 const app = initializeApp(environment.firebaseConfig);
 
-const auth = getAuth(app);
+const auth =
+  platform === 'ios'
+    ? initializeAuth(app, {
+        persistence: browserLocalPersistence
+      })
+    : getAuth(app);
 
 // Preserve existing imports from other files
 export { auth };
@@ -51,10 +64,10 @@ export { auth };
 // 2. Initialize Firestore based on platform
 // --------------------------------------------------
 
-const platform = Capacitor.getPlatform();
+//const platform = Capacitor.getPlatform();
 
 console.log('[APP] Running platform:', platform);
-
+//setLogLevel('debug');
 const firestore =
   platform === 'ios'
     ? initializeFirestore(app, {
