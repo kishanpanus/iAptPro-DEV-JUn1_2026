@@ -1921,6 +1921,66 @@ input:focus {
 }
 
 
+.announcement-form .checkbox-group {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  width: 100%;
+  max-width: 100%;
+  margin: 16px 0;
+  box-sizing: border-box;
+}
+
+.announcement-form .checkbox-group input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  flex: 0 0 18px;
+  accent-color: #2563eb;
+}
+
+.announcement-form .checkbox-group label {
+  display: inline-block;
+  width: auto;
+  max-width: calc(100% - 28px);
+  margin: 0;
+  padding: 0;
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 14px;
+  line-height: 1.4;
+  text-align: left;
+  white-space: normal;
+}
+
+.queries-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.queries-icon {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.button-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+
+
+
 
 
 

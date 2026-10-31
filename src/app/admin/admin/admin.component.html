@@ -575,7 +575,9 @@
 
         <div class="mt-1">
           <button *ngIf="r.status !== 'resolved'" class="btn btn-sm btn-outline-success" (click)="updateRequestStatus(r, 'resolved')">
-            ✅ Mark Resolved
+             <img src="assets/approve-event-icon.png"
+       class="event-action-icon"
+       alt="Approve" /> Mark Resolved
           </button>
         </div>
       </td>
@@ -615,7 +617,7 @@
     src="assets/button-plus.png "
     class="export-icon"
     alt=""
-  /> Add Security</button>
+  />   Add Security</button>
         </form>
       
         <div *ngFor="let sec of securityUsers" class="gate-pass-card">
@@ -656,7 +658,16 @@
       Submit Query
       </button>
 
-      <h5>📨 Your Queries</h5>
+      
+<h5 class="queries-heading">
+  <img
+    src="assets/your-queries-icon.png"
+    class="queries-icon"
+    alt=""
+  />
+  Your Queries
+</h5>
+
       <ul>
       <li *ngFor="let q of adminQueries">
       {{ q.message }} - <strong>{{ q.status }}</strong>
@@ -700,17 +711,27 @@
         class="form-control"
       />
 
-      <button
-        (click)="postAnnouncement()"
-        class="btn btn-primary mt-3 w-100"
-      >
-        📨 Post Announcement
-      </button>
+    <button
+  (click)="postAnnouncement()"
+  class="btn btn-primary mt-3 w-100"
+>
+  <img
+    src="assets/post-announcement-icon.png"
+    class="button-icon"
+    alt=""
+  />
+  Post Announcement
+</button>
       </div>
 
-
-
-      <h5 class="mt-4">📌 Announcements</h5>
+      <h5 class="mt-4">
+  <img
+    src="assets/announcements-icon.png"
+    class="expense-icon"
+    alt=""
+  />
+  Announcements
+</h5>
       <ul class="announcement-list">
       <li *ngFor="let msg of announcements" class="announcement-item">
         <p><strong>{{ msg.message }}</strong></p>

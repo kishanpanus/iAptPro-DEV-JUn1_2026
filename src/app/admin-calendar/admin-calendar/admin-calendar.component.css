@@ -116,3 +116,66 @@
   object-fit: contain;
   flex-shrink: 0;
 }
+
+
+.event-action-btn {
+  border: none;
+  background: transparent;
+  padding: 8px;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background 0.2s ease;
+}
+
+.event-action-btn:hover {
+  background: #eef4ff;
+}
+
+.event-action-icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.event-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 6px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.event-action-icon {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  display: block;
+}
+
+.event-action-icon {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  display: block;
+}
+
+.edit-btn,
+.delete-btn {
+  background: transparent;
+  border: none;
+  padding: 6px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: transform 0.2s ease;
+}
+
+.edit-btn:hover,
+.delete-btn:hover {
+  transform: scale(1.15);
+}
+

@@ -17,8 +17,8 @@
 </h4>
   
     <div class="calendar-form">
-      <input type="date" [(ngModel)]="selectedDate" />
-      <input type="time" [(ngModel)]="selectedTime" />
+      <input type="date" [(ngModel)]="selectedDate" placeholder="Select Date"/>
+      <input type="time" [(ngModel)]="selectedTime" placeholder="Select Time"/>
       <input type="text" [(ngModel)]="newEventTitle" placeholder="Event Title" />
   
       <select [(ngModel)]="newEventType" [disabled]="role !== 'admin'">
@@ -44,10 +44,52 @@
           <span *ngIf="event.requestedBy">- {{ event.requestedBy.block }}-{{ event.requestedBy.flat }} ({{ event.requestedBy.phone }})</span>
         </div>
         <div class="admin-actions" *ngIf="role === 'admin'">
-          <button class="edit-btn" (click)="editEvent(event)">✏️</button>
-          <button class="delete-btn" (click)="deleteEvent(event.id)">🗑️</button>
-          <button *ngIf="event.status === 'pending'" (click)="approveEvent(event.id)">✅</button>
-          <button *ngIf="event.status === 'pending'" (click)="rejectEvent(event.id)">❌</button>
+       <!-- Edit Event -->
+<button
+  class="edit-btn"
+  (click)="editEvent(event)"
+  title="Edit Event"
+>
+  <img
+    src="assets/edit-event-icon.png"
+    class="event-action-icon"
+    alt="Edit"
+  />
+</button>
+
+<!-- Delete Event -->
+<button
+  class="delete-btn"
+  (click)="deleteEvent(event.id)"
+  title="Delete Event"
+>
+  <img
+    src="assets/delete-event-icon.png"
+    class="event-action-icon"
+    alt="Delete"
+  />
+</button>
+     
+<button
+  *ngIf="event.status === 'pending'"
+  (click)="approveEvent(event.id)"
+  class="event-action-btn"
+  title="Approve Event">
+  <img src="assets/approve-event-icon.png"
+       class="event-action-icon"
+       alt="Approve" />
+</button>
+
+<button
+  *ngIf="event.status === 'pending'"
+  (click)="rejectEvent(event.id)"
+  class="event-action-btn"
+  title="Reject Event">
+  <img src="assets/reject-event-icon.png"
+       class="event-action-icon"
+       alt="Reject" />
+</button>
+
         </div>
       </li>
     </ul>
