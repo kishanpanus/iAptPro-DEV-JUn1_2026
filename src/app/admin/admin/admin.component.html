@@ -55,7 +55,14 @@
     <!-- 🔹 Finance Management -->
     <!--Add monthly expenses-->
       <details class="expense-section">
-      <summary class="collapsible-header">💰 Add Monthly Expense</summary>
+      <summary class="collapsible-header">
+        <img
+          src="assets/monthly-expense-icon.png"
+          class="expense-icon"
+          alt=""
+        />
+        <span>Add Monthly Expense</span>
+      </summary>
 
       <div class="input-group">
       <input [(ngModel)]="newExpenseName" placeholder="Expense Name" class="input-field" />
@@ -74,7 +81,17 @@
       </div>
 
 
-      <button (click)="addExpense()" class="btn btn-success">➕ Add</button>
+      <button (click)="addExpense()" class="btn btn-success"><button
+  type="submit"
+  [disabled]="!providerForm.form.valid"
+  class="submit-btn"
+>
+  <img
+    src="assets/button-plus.png"
+    class="submit-icon"
+    alt=""
+  />
+</button> Add</button>
       </div>
 
       <!-- Show pending expenses before save -->
@@ -113,9 +130,14 @@
 
       <!--water bill management-->
       <details class="collapsible-bill-section">
-      <summary class="collapsible-header">
-      💧 Water Bill Management
-      </summary>
+    <summary class="collapsible-header">
+  <img
+    src="assets/water-bill-icon.png"
+    class="expense-icon"
+    alt=""
+  />
+  <span>Water Bill Management</span>
+</summary>
 
 
 
@@ -210,7 +232,14 @@
 
       <!--Expenses list-->
       <details *ngFor="let year of getYears()" [open]="toNumber(year) === currentYear" class="year-details">
-      <summary class="collapsible-header">💰 Expenses list</summary>
+      <summary class="collapsible-header">
+  <img
+    src="assets/expenses-list-icon.png"
+    class="expense-icon"
+    alt=""
+  />
+  <span>Expenses List</span>
+</summary>
       <summary class="year-summary">{{ year }} - ₹{{ getYearlyTotal(year) }}</summary>
 
       <div *ngFor="let month of getMonths(year)" class="month-section">
@@ -350,7 +379,11 @@
       <!-- 🔹 Finance Management -->
       <!--add flat owner-->
       <details>
-      <summary class="collapsible-header">👥 Add Flat Owner</summary>
+      <summary class="collapsible-header"><img
+  src="assets/add-flat-owner-icon.png"
+  class="expense-icon"
+  alt=""
+/> Add Flat Owner</summary>
 
       <!-- 🔄 Block Mode Toggle -->
       <div class="toggle-switch-container">
@@ -473,7 +506,11 @@
 
       <!--Maintanance request-->
       <details class="provider-section" (toggle)="onMaintenanceToggle($event)">
-      <summary class="collapsible-header">🧰 Maintenance Requests
+      <summary class="collapsible-header"><img
+  src="assets/maintenance-requests-icon.png"
+  class="expense-icon"
+  alt=""
+/> Maintenance Requests
         <span *ngIf="hasUnseenRequests" class="dot ms-2"></span>
       </summary>
 
@@ -506,7 +543,11 @@
       </div>
 
       <div class="filter-group export-btn">
-      <button class="btn btn-sm btn-success" (click)="exportToCSV()">📤 Export CSV</button>
+      <button class="btn btn-sm btn-success" (click)="exportToCSV()">  <img
+    src="assets/export-csv-icon.png"
+    class="export-icon"
+    alt=""
+  /> Export CSV</button>
       </div>
       </div>
       </div>
@@ -546,7 +587,11 @@
 
       <!--security-->
       <details class="collapsible-section">
-        <summary class="collapsible-header">🛡️ Manage Security Users</summary>
+        <summary class="collapsible-header"><img
+  src="assets/manage-security-users-icon.png"
+  class="expense-icon"
+  alt=""
+/> Manage Security Users</summary>
       
         <form (ngSubmit)="addSecurityUser()" #secForm="ngForm" class="form-section">
           <label>Security Name:</label>
@@ -566,7 +611,11 @@
           <!-- <label>Email:</label> -->
           <!-- <input type="email" [(ngModel)]="newSecurity.email" name="email" required /> -->
       
-          <button class="btn primary" type="submit" [disabled]="secForm.invalid">➕ Add Security</button>
+          <button class="btn primary" type="submit" [disabled]="secForm.invalid"> <img
+    src="assets/button-plus.png "
+    class="export-icon"
+    alt=""
+  /> Add Security</button>
         </form>
       
         <div *ngFor="let sec of securityUsers" class="gate-pass-card">
@@ -581,7 +630,11 @@
 
       <!--report to app owner-->
       <details>
-      <summary class="collapsible-header">❓ Report an Issue to App Owner</summary>
+      <summary class="collapsible-header"><img
+  src="assets/report-issue-icon.png"
+  class="expense-icon"
+  alt=""
+/> Report an Issue to App Owner</summary>
 
       <textarea
       [(ngModel)]="adminQueryMessage"
@@ -615,7 +668,11 @@
       <!-- 🔹 Communication & Voting -->
       <!--announcements-->
       <details class="collapsible-section" (toggle)="onAnnouncementsToggle($event)">
-      <summary class="collapsible-header">📢 Announce a Message
+      <summary class="collapsible-header"><img
+  src="assets/announcement-icon.png"
+  class="expense-icon"
+  alt=""
+/> Announce a Message
         <span *ngIf="hasUnseenAnnouncements" class="dot ms-2"></span>
       </summary>
 
@@ -679,7 +736,11 @@
 
       <!--polls-->
       <details class="collapsible-section" (toggle)="onPollsToggle($event)">
-      <summary class="collapsible-header">🗳️ Polls/Voting
+      <summary class="collapsible-header"><img
+  src="assets/polls-voting-icon.png"
+  class="expense-icon"
+  alt=""
+/> Polls/Voting
         <span *ngIf="hasUnseenPolls" class="dot ms-2"></span>
       </summary>
 
@@ -691,7 +752,11 @@
           <input [(ngModel)]="newPoll.options[i]" placeholder="Option {{ i + 1 }}" />
         </div>&nbsp;
         <div>
-          <button (click)="addOption()">+ Add Option</button>
+          <button (click)="addOption()"><img
+    src="assets/button-plus.png "
+    class="export-icon"
+    alt=""
+  />  Add Option</button>
           <button (click)="createPoll()">Create Poll</button>
         </div>
       </div>
@@ -734,7 +799,11 @@
       <!-- 🔹 Convenience Services -->
       <!--market place-->
       <details class="collapsible-section" (toggle)="onMarketplaceToggle($event)">
-      <summary class="collapsible-header">🧺 Marketplace
+      <summary class="collapsible-header"><img
+  src="assets/marketplace-icon.png"
+  class="expense-icon"
+  alt=""
+/> Marketplace
         <span *ngIf="hasUnseenMarketplaceItems" class="dot ms-2"></span>
       </summary>
 
@@ -749,7 +818,8 @@
 
       <!--local service providers-->
       <details class="provider-section">
-      <summary class="collapsible-header">🏠 Local Service Providers</summary>
+      <summary class="collapsible-header"><img src="assets/local-service-providers-icon.png"
+     class="expense-icon" alt="" /> Local Service Providers</summary>
       <div class="form-wrapper">
         <form (ngSubmit)="addProvider()" #providerForm="ngForm">
           <input
@@ -802,7 +872,11 @@
           ></textarea>
         
           <button type="submit" [disabled]="!providerForm.form.valid" class="submit-btn">
-            ➕ Add Provider
+              <img
+    src="assets/button-plus.png"
+    class="submit-icon"
+    alt=""
+  /> Add Provider
           </button>
         </form>
         
@@ -824,7 +898,9 @@
       <!-- 🔹 Planning & Configuration -->
       <!--Events and Booking-->
       <details>
-      <summary class="collapsible-header">📅 Calendar - Events & Bookings</summary>
+      <summary class="collapsible-header"><img src="assets/calendar-events-bookings-icon.png"
+     class="expense-icon" alt="" />
+ Calendar - Events & Bookings</summary>
 
       <app-admin-calendar
       *ngIf="adminApartmentId"
@@ -836,10 +912,15 @@
       <!-- settings-->
       <details class="collapsible-bill-section" id="global-settings">
       <summary class="collapsible-header">
-      ⚙️ Global Settings
+      <img src="assets/global-settings-icon.png"
+     class="expense-icon" alt="" /> Global Settings
       </summary>
       <details class="subsection-box">
-      <summary class="collapsible-header1">💧 Water Bill Settings</summary>
+      <summary class="collapsible-header1">  <img
+    src="assets/water-bill-icon.png"
+    class="expense-icon"
+    alt=""
+  /> Water Bill Settings</summary>
 
       <div class="smart-settings-grid">
         <label>Month:</label>
@@ -913,7 +994,11 @@
 
       <details class="subsection-box ">
       <summary class="collapsible-header1">
-        💳 Add Payment details
+          <img
+    src="assets/payment-icon.png"
+    class="expense-icon"
+    alt=""
+  /> Add Payment details
       </summary>
 
       <form (ngSubmit)="saveUpi()">

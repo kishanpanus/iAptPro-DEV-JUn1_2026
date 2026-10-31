@@ -1843,6 +1843,82 @@ input:focus {
 }
 
 
+.collapsible-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: 10px;
+}
+
+.expense-icon {
+  display: block;
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.collapsible-header span {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+}
+
+.collapsible-header::marker,
+.collapsible-header::-webkit-details-marker {
+  display: none;
+}
+
+@media (max-width: 600px) {
+  .collapsible-header {
+    padding: 12px;
+    gap: 10px;
+    font-size: 15px;
+  }
+
+  .expense-icon {
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+  }
+}
+
+.submit-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.submit-icon {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+.btn-success {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.export-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
 
 
 

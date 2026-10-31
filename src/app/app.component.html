@@ -20,7 +20,14 @@
 
   <!-- Centered Apartment Name - only after login -->
   <div class="apartment-name" *ngIf="otpVerified && admin?.apartmentName">
-    <span>🏢 {{ admin?.apartmentName }}</span>
+      <span class="apartment-label">
+      <img
+        src="assets/apartment-icon.png"
+        class="apartment-icon"
+        alt=""
+      />
+      {{ admin?.apartmentName }}
+    </span>
   </div>
 
   <!-- Avatar and dropdown - only after login -->

@@ -419,6 +419,34 @@ body {
   .dropdown button:hover {
     background-color: #f0f0f0;
   } */
+
+  .apartment-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: #1f2937;
+  min-width: 0;
+}
+
+.apartment-icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+@media (max-width: 600px) {
+  .apartment-icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .apartment-label {
+    gap: 6px;
+    font-size: 14px;
+  }
+}
   
   
   

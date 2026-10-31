@@ -1,5 +1,20 @@
 <div class="calendar-container">
-    <h4>{{ role === 'admin' ? (editingEventId ? '✏️ Edit Event' : '📅 Add New Event') : '📅 Request Clubhouse Booking' }}</h4>
+
+<h4 class="event-heading">
+  <img
+    [src]="role === 'admin'
+      ? (editingEventId
+          ? 'assets/edit-event-icon.png'
+          : 'assets/add-event-icon.png')
+      : 'assets/clubhouse-booking-icon.png'"
+    class="event-icon"
+    alt=""
+  />
+
+  {{ role === 'admin'
+      ? (editingEventId ? 'Edit Event' : 'Add New Event')
+      : 'Request Clubhouse Booking' }}
+</h4>
   
     <div class="calendar-form">
       <input type="date" [(ngModel)]="selectedDate" />
@@ -18,7 +33,7 @@
       <button *ngIf="editingEventId" class="cancel-btn" (click)="clearForm()">Cancel</button>
     </div>
   
-    <h4>📌 Events & Bookings</h4>
+    <h4> Events & Bookings</h4>
     <ul class="event-list">
       <li *ngFor="let event of visibleEvents">
         <div>
