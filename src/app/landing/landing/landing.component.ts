@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { EnrollmentComponent } from '../../enrollment/enrollment/enrollment.component';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
+import { Capacitor } from '@capacitor/core';
 
 @Component({
   selector: 'app-landing',
@@ -22,7 +23,7 @@ export class LandingComponent {
   email: '',
   message: ''
 };
-
+showStoreBadges = !Capacitor.isNativePlatform();
 sendingMessage = false;
 contactSuccess = false;
 contactError = false;

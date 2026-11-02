@@ -1752,3 +1752,22 @@ button:hover,
     box-shadow: 0 0 10px #2196f3;
   }
 }
+@media screen and (max-width: 768px) {
+  .hero {
+    height: auto !important;
+    min-height: 0 !important;
+    padding-top: 20px !important;
+    align-items: flex-start !important;
+  }
+
+  .hero-text {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+    transform: none !important;
+  }
+
+  .hero-subheading {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
+}
