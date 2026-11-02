@@ -350,6 +350,87 @@ agreeTerms = false;
   async handleEnrollment(): Promise<void> {
     if (this.isCheckingEnrollment) return; // prevent multiple clicks
   
+    
+// Validate mandatory apartment and admin fields
+const requiredFields = [
+  { value: this.newApartment.name, label: 'Apartment Name' },
+  { value: this.newApartment.address.street, label: 'Street Address' },
+  { value: this.newApartment.address.city, label: 'City' },
+  { value: this.newApartment.address.state, label: 'State' },
+  { value: this.newApartment.address.pincode, label: 'Pincode' },
+  { value: this.newAdmin.adminName, label: 'Your Name' },
+  { value: this.newAdmin.phoneNumber, label: 'Phone Number' }
+];
+
+for (const field of requiredFields) {
+  if (!String(field.value ?? '').trim()) {
+    this.modalService.show(
+      `⚠️ Please enter ${field.label}.`,
+      'warning'
+    );
+    return;
+  }
+}
+
+// Validate Number of Flats
+const rawFlatCount = this.newApartment.flatCount;
+const flatCount = Number(rawFlatCount);
+
+if (
+  rawFlatCount === null ||
+  rawFlatCount === undefined ||
+  String(rawFlatCount).trim() === '' ||
+  !Number.isFinite(flatCount) ||
+  !Number.isInteger(flatCount) ||
+  flatCount <= 0
+) {
+  this.modalService.show(
+    '⚠️ Please enter a valid Number of Flats greater than zero.',
+    'warning'
+  );
+  return;
+}
+
+// Validate Indian Pincode
+const pincode = String(
+  this.newApartment.address.pincode ?? ''
+).trim();
+
+if (!/^[1-9][0-9]{5}$/.test(pincode)) {
+  this.modalService.show(
+    '⚠️ Please enter a valid 6-digit Pincode.',
+    'warning'
+  );
+  return;
+}
+
+// Validate Phone Number
+const phoneNumber = String(
+  this.newAdmin.phoneNumber ?? ''
+).trim();
+
+if (!/^[6-9][0-9]{9}$/.test(phoneNumber)) {
+  this.modalService.show(
+    '⚠️ Please enter a valid 10-digit Phone Number.',
+    'warning'
+  );
+  return;
+}
+
+// Validate optional Email Address
+const email = this.newAdmin.email?.trim() || '';
+
+if (
+  email &&
+  !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+) {
+  this.modalService.show(
+    '⚠️ Please enter a valid Email Address.',
+    'warning'
+  );
+  return;
+}
+
     this.isCheckingEnrollment = true;
   
     if (!this.newAdmin.adminName?.trim() || !this.newAdmin.phoneNumber?.trim()) {

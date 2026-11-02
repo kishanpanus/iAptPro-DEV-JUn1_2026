@@ -1771,3 +1771,65 @@ button:hover,
     padding-top: 0 !important;
   }
 }
+
+/* Center Why Choose Apt3M circle on mobile */
+@media screen and (max-width: 768px) {
+
+  .hero-circle-content {
+    position: relative !important;
+    left: auto !important;
+    right: auto !important;
+    transform: none !important;
+
+    width: 100%;
+    margin: 20px auto !important;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .circle-inner {
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+
+}
+
+@media (max-width: 768px) {
+  .hero-tagline {
+    width: 100%;
+    text-align: center;
+    margin: 25px auto 0;
+    padding: 0 12px 10px;
+    box-sizing: border-box;
+    position: relative;
+    z-index: 2;
+  }
+
+  .hero-tagline p {
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.5;
+    margin: 0 0 10px;
+  }
+
+  .tagline-decoration {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: #ffd54f;
+  }
+
+  .tagline-decoration span:not(.tagline-icon) {
+    width: 35px;
+    height: 2px;
+    background: #ffd54f;
+  }
+
+  .tagline-icon {
+    font-size: 22px;
+  }
+}
